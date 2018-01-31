@@ -3,7 +3,7 @@
 int main()
 {
   char *c;
-  int x = 0xFFFFFFFF;   // Insert your magic number here with ASCII newline
+  int x = 0x0a646562;   // Insert your magic number here with ASCII newline
                         // You only need to change the F's for the first part
 
   c = (char *)&x;
