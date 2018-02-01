@@ -8,6 +8,18 @@
 #include <assert.h>
 #include <string.h>
 
+void clear_stdin(void)
+{
+    char x = 0;
+    while(1)
+    {
+        x = getchar();
+        if(x == '\n' || x == EOF)
+            break;
+    }
+}
+
+
 int **mm_alloc( int rows, int columns )
 {
     /*
@@ -32,22 +44,20 @@ void mm_free( int **matrix, int rows, int columns )
 
 void mm_read( int **matrix, int rows, int columns )
 {
-    char buf[50];
+    char buf[20];
+    char * value_str;
+    clear_stdin();
     printf("Please enter the values for the %d x %d matrix:\n", rows, columns);
-    fgets(buf, sizeof(buf), stdin);
     for(int i = 0; i < rows; i++)
     {
         fgets(buf, sizeof(buf), stdin);
-        int j, value_int = 0;
-        char * value_str;
         value_str = strtok(buf, " ");
-        //TODO figure out what's going on here 
-        while(j < columns && value_str != NULL)
+        //printf("buf: %s\n", buf);
+
+        int j = 0;
+        while(value_str != NULL && j < columns)
         {
-            //printf("%s", value_str);
-            value_int = atoi(value_str);
-            printf("value_int: %d  i: %d  j: %d\n", value_int, i, j);
-            matrix[i][j] = value_int;
+            matrix[i][j] = atoi(value_str);
             value_str = strtok(NULL, " ");
             j++;
         }
@@ -56,7 +66,6 @@ void mm_read( int **matrix, int rows, int columns )
 
 void mm_print( int **matrix, int rows, int columns )
 {
-    //printf("\n");
     for(int i = 0; i < rows; i++)
     {
         for(int j = 0; j < columns; j++)
@@ -65,13 +74,19 @@ void mm_print( int **matrix, int rows, int columns )
         }
         printf("\n");
     }
-    //printf("\n");
 }
 
 void mm_mult( int **m1, int m1_rows, int m1_cols,
               int **m2, int m2_rows, int m2_cols,
               int **results)
 {
+    for(unsigned int i = 0; i < m1_rows; i++)
+    {
+        for(unsigned int j = 0; j < m1_cols; j++)
+        {
+            results[i][j] = m1[i][j] * m2[j][i];
+        }
+    }
 }
 
 int main()
