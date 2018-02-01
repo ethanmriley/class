@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <string.h>
 
+//allocate memory for a variable-size matrix on the heap
 int **mm_alloc( int rows, int columns )
 {
     int **matrix = malloc(sizeof(int *)*rows);
@@ -20,6 +21,7 @@ int **mm_alloc( int rows, int columns )
     return matrix;
 }
 
+//free memory from a variable-size matrix on the heap
 void mm_free( int **matrix, int rows, int columns )
 {
     for(int i = 0; i < rows; i++)
@@ -29,6 +31,7 @@ void mm_free( int **matrix, int rows, int columns )
     free(matrix);
 }
 
+//read input from stdin and populate our matrix
 void mm_read( int **matrix, int rows, int columns )
 {
     printf("Please enter the values for the %d x %d matrix:\n", rows, columns);
@@ -36,12 +39,13 @@ void mm_read( int **matrix, int rows, int columns )
     {
         for(int j = 0; j < columns; j++)
         {
-            scanf("%d", &matrix[i][j]);
+            scanf("%d", &matrix[i][j]);  
         }
     }
 
 }
 
+//pretty-print our matrix by iterating through rows and columns
 void mm_print( int **matrix, int rows, int columns )
 {
     for(int i = 0; i < rows; i++)
@@ -54,13 +58,14 @@ void mm_print( int **matrix, int rows, int columns )
     }
 }
 
+//iterative matrix multiplication
 void mm_mult( int **m1, int m1_rows, int m1_cols,
               int **m2, int m2_rows, int m2_cols,
               int **results)
 {
-    for(unsigned int i = 0; i < m1_rows; i++) //TODO might be cols here
+    for(unsigned int i = 0; i < m1_rows; i++)       
     {
-        for(unsigned int j = 0; j < m1_rows; j++)
+        for(unsigned int j = 0; j < m1_rows; j++)    
         {
             for(unsigned int k = 0; k < m2_rows; k++)
             {
