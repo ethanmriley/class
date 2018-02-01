@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
+
 int **mm_alloc( int rows, int columns )
 {
     /*
@@ -30,6 +32,26 @@ void mm_free( int **matrix, int rows, int columns )
 
 void mm_read( int **matrix, int rows, int columns )
 {
+    char buf[50];
+    printf("Please enter the values for the %d x %d matrix:\n", rows, columns);
+    fgets(buf, sizeof(buf), stdin);
+    for(int i = 0; i < rows; i++)
+    {
+        fgets(buf, sizeof(buf), stdin);
+        int j, value_int = 0;
+        char * value_str;
+        value_str = strtok(buf, " ");
+        //TODO figure out what's going on here 
+        while(j < columns && value_str != NULL)
+        {
+            //printf("%s", value_str);
+            value_int = atoi(value_str);
+            printf("value_int: %d  i: %d  j: %d\n", value_int, i, j);
+            matrix[i][j] = value_int;
+            value_str = strtok(NULL, " ");
+            j++;
+        }
+    }
 }
 
 void mm_print( int **matrix, int rows, int columns )
