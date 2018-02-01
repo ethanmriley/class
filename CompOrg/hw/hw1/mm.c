@@ -13,7 +13,15 @@ int **mm_alloc( int rows, int columns )
      * an row/array of ints and assign each int pointer that row
      * see slide 62
      */
-    return NULL;
+
+    int **matrix = malloc(sizeof(int *)*rows);
+    for(int i = 0; i < rows; i++)
+    {
+        int *row = malloc(sizeof(int *)*columns);
+        matrix[i] = row;
+    }
+
+    return matrix;
 }
 
 void mm_free( int **matrix, int rows, int columns )
@@ -26,6 +34,16 @@ void mm_read( int **matrix, int rows, int columns )
 
 void mm_print( int **matrix, int rows, int columns )
 {
+    //printf("\n");
+    for(int i = 0; i < rows; i++)
+    {
+        for(int j = 0; j < columns; j++)
+        {
+            printf("%d ", matrix[i][j]);
+        }
+        printf("\n");
+    }
+    //printf("\n");
 }
 
 void mm_mult( int **m1, int m1_rows, int m1_cols,
