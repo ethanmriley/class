@@ -22,6 +22,11 @@ int **mm_alloc( int rows, int columns )
 
 void mm_free( int **matrix, int rows, int columns )
 {
+    for(int i = 0; i < rows; i++)
+    {
+        free(matrix[i]);
+    }
+    free(matrix);
 }
 
 void mm_read( int **matrix, int rows, int columns )
@@ -53,7 +58,7 @@ void mm_mult( int **m1, int m1_rows, int m1_cols,
               int **m2, int m2_rows, int m2_cols,
               int **results)
 {
-    for(unsigned int i = 0; i < m1_rows; i++)
+    for(unsigned int i = 0; i < m1_rows; i++) //TODO might be cols here
     {
         for(unsigned int j = 0; j < m1_rows; j++)
         {
