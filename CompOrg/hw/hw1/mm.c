@@ -57,7 +57,7 @@ void mm_mult( int **m1, int m1_rows, int m1_cols,
     {
         for(unsigned int j = 0; j < m1_cols; j++)
         {
-            for(unsigned int k = 0; k < m2_cols; k++)
+            for(unsigned int k = 0; k < m2_rows; k++)
             {
                 results[i][j] += m1[i][k] * m2[k][j];
             }
