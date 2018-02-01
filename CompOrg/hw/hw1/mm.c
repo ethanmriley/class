@@ -8,26 +8,8 @@
 #include <assert.h>
 #include <string.h>
 
-void clear_stdin(void)
-{
-    char x = 0;
-    while(1)
-    {
-        x = getchar();
-        if(x == '\n' || x == EOF)
-            break;
-    }
-}
-
-
 int **mm_alloc( int rows, int columns )
 {
-    /*
-     * hints: allocate an array of pointers to ints, then allocate
-     * an row/array of ints and assign each int pointer that row
-     * see slide 62
-     */
-
     int **matrix = malloc(sizeof(int *)*rows);
     for(int i = 0; i < rows; i++)
     {
@@ -44,24 +26,15 @@ void mm_free( int **matrix, int rows, int columns )
 
 void mm_read( int **matrix, int rows, int columns )
 {
-    char buf[20];
-    char * value_str;
-    clear_stdin();
     printf("Please enter the values for the %d x %d matrix:\n", rows, columns);
     for(int i = 0; i < rows; i++)
     {
-        fgets(buf, sizeof(buf), stdin);
-        value_str = strtok(buf, " ");
-        //printf("buf: %s\n", buf);
-
-        int j = 0;
-        while(value_str != NULL && j < columns)
+        for(int j = 0; j < columns; j++)
         {
-            matrix[i][j] = atoi(value_str);
-            value_str = strtok(NULL, " ");
-            j++;
+            scanf("%d", &matrix[i][j]);
         }
     }
+
 }
 
 void mm_print( int **matrix, int rows, int columns )
@@ -84,7 +57,10 @@ void mm_mult( int **m1, int m1_rows, int m1_cols,
     {
         for(unsigned int j = 0; j < m1_cols; j++)
         {
-            results[i][j] = m1[i][j] * m2[j][i];
+            for(unsigned int k = 0; k < m2_cols; k++)
+            {
+                results[i][j] += m1[i][k] * m2[k][j];
+            }
         }
     }
 }
@@ -102,14 +78,14 @@ int main()
     int m1_rows, m1_columns;
     int m2_rows, m2_columns;
 
-    printf("How many rows are in the first matrix? ");
+    printf("How many rows are in the first matrix?\n");
     scanf("%d", &m1_rows);
-    printf("How many columns are in the first matrix? ");
+    printf("How many columns are in the first matrix?\n");
     scanf("%d", &m1_columns);
 
-    printf("How many rows are in the second matrix? ");
+    printf("How many rows are in the second matrix?\n");
     scanf("%d", &m2_rows);
-    printf("How many columns are in the second matrix? ");
+    printf("How many columns are in the second matrix?\n");
     scanf("%d", &m2_columns);
 
     printf("\n");
