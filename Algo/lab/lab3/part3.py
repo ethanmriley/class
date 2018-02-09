@@ -8,4 +8,4 @@ for val in carmichael_numbers:
     #for i in range(0, 1000):
     #    times_prime += primality2(val, 1000)
     #print times_prime
-    print primality2(val, 1000)
+    print primality2(val, 1000) / 1000.0
