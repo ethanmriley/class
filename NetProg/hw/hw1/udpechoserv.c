@@ -6,6 +6,9 @@
 
 #define MAXLINE 100
 
+//udp echo server for netprog
+//ethan riley, 2017
+
 //re-implementation of dg_echo
 void my_echo(int sockfd, struct sockaddr *cliaddr, socklen_t cliaddr_len)
 {
@@ -33,7 +36,7 @@ int main(int argc, char **argv)
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) // ask for an ipv4 UDP socket 
     {
         perror("socket failed");                     // if we don't get it, print the error
-        exit(EXIT_FAILURE);                            // and exit          
+        exit(EXIT_FAILURE);                          // and exit          
     }
 
     bzero(&servaddr, sizeof(servaddr)); // zero out servaddr
