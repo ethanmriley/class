@@ -3,12 +3,6 @@
 #include <string.h>
 #include <arpa/inet.h>
 
-struct read_write_request {
-    int  opcode:16;
-    char filename[256];
-    char mode[6];
-};
-
 struct data {
     int  opcode:16;
     int  block_num:16;
@@ -28,13 +22,16 @@ struct error {
 
 void main(void)
 {
-    struct read_write_request RRQ;
+    FILE *fp;
+    struct data DATA;
+    int bytes_read;
 
-    memset(&RRQ, 0, 264);
+    fp = fopen("test.txt", "r");
 
-    RRQ.opcode = htons(1);
-    strcpy(RRQ.filename, "test.txt");
-    strcpy(RRQ.mode, "octet");
-    
-    fwrite(&RRQ, 264, 1, stdout);
+    memset(&DATA, 0, sizeof(struct data));
+    DATA.opcode = htons(3);
+    DATA.block_num = htons(1);
+    bytes_read = fread(&DATA.data, 1, 512, fp);
+
+    fwrite(&DATA, (bytes_read + 4), 1, stdout);
 }

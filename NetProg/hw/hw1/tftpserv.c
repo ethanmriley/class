@@ -6,8 +6,42 @@
 
 #define MAXLINE 100
 
-//udp echo server for netprog
+//tftp server for netprog
 //ethan riley, 2017
+
+//--------------
+//packet structs
+//--------------
+
+//rrq/wrq have the same structure
+struct read_write_request { 
+    int  opcode:16;     //bit field ensures 16 bits
+    char filename[256]; //assuming this is max filename length
+    char mode[6];       //always going to be "octet"
+};
+
+struct data {
+    int  opcode:16;
+    int  block_num:16;
+    char data[512];
+};
+
+struct acknowledgment {
+    int opcode:16;
+    int block_num:16;
+};
+
+struct error {
+    int  opcode:16;
+    int  err_code:16;
+    char err_msg[40];
+};
+
+
+//---------
+//functions
+//---------
+
 
 //re-implementation of dg_echo
 void my_echo(int sockfd, struct sockaddr *cliaddr, socklen_t cliaddr_len)
