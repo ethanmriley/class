@@ -139,7 +139,7 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    printf("port: %d\n", servsock.addr.sin_port);
+    printf("port: %d\n", ntohs(servsock.addr.sin_port));
 
     handle_requests(servsock.sockfd, cliaddr, sizeof(cliaddr));
 }
