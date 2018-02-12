@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
+#include <signal.h>
 
 #define MAXPACKET 1000
 
@@ -42,6 +43,11 @@ struct server_socket {
 //---------
 //functions
 //---------
+
+static void sig_alrm(int signo)
+{
+    return;
+}
 
 struct server_socket get_socket() 
 {
@@ -133,14 +139,52 @@ void send_data(int sockfd, struct sockaddr_in cliaddr, char *data, int bytes_rea
     sendto(sockfd, (void *) &DATA, (4 + bytes_read), 0, (struct sockaddr *) &cliaddr, sizeof(cliaddr));
 }
 
+void wait_for_ack(int sockfd, struct sockaddr_in cliaddr, char *data, int bytes_read, short block_num)
+{
+    struct acknowledgment ACK;
+    unsigned int addrlen = sizeof(cliaddr);
+    short recv_block_num;
+    int timeout_count = 0;
+
+    while(1) //waiting for the /correct/ acknowledgment
+    {
+        alarm(1);
+
+        if(recvfrom(sockfd, (void *) &ACK, sizeof(ACK), 0, (struct sockaddr *) &cliaddr, &addrlen) == -1)
+        {
+            if(errno == EINTR)
+            {
+                timeout_count++;
+                if(timeout_count < 10)
+                {
+                    send_data(sockfd, cliaddr, data, bytes_read, block_num);
+                }
+                else if(timeout_count == 10)
+                { 
+                    printf("timed out waiting for acknowledgement.\n");
+                    exit(0);
+                }
+            }
+            else
+            {
+                perror("recvfrom failed");
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        recv_block_num = ntohs(ACK.block_num);
+
+        if(recv_block_num == block_num) //we've recieved the ack we were waiting for
+            return;
+    }
+}
+
 void handle_read(int sockfd, struct sockaddr_in cliaddr, int TID, char *filename)
 {
     FILE *fp;
     char data[512] = {0};
-    struct acknowledgment ACK;
-    unsigned int addrlen = sizeof(cliaddr);
     int bytes_read;
-    int block_num = 0;
+    short block_num = 0;
 
     if((fp = fopen(filename, "r")) == NULL)
         handle_fopen_err(sockfd, cliaddr);
@@ -149,9 +193,10 @@ void handle_read(int sockfd, struct sockaddr_in cliaddr, int TID, char *filename
     {
         block_num++;
         bytes_read = fread(data, 1, 512, fp);
+
         send_data(sockfd, cliaddr, data, bytes_read, block_num);
         
-        recvfrom(sockfd, (void *) &ACK, sizeof(ACK), 0, (struct sockaddr *) &cliaddr, &addrlen);
+        wait_for_ack(sockfd, cliaddr, data, bytes_read, block_num);
 
         if(cliaddr.sin_port != TID)
             send_err(sockfd, cliaddr, 5, "Unknown transfer ID.");
@@ -237,6 +282,8 @@ int main(int argc, char **argv)
     servsock = get_socket();
 
     printf("port: %d\n", ntohs(servsock.addr.sin_port));
+
+    signal(SIGALRM, sig_alrm);
 
     handle_requests(servsock.sockfd, cliaddr, sizeof(cliaddr));
 }
