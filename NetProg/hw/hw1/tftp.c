@@ -22,6 +22,7 @@ struct data {
     short opcode;
     short block_num;
     char  data[512];
+    int   byte_count;
 };
 
 struct acknowledgment {
@@ -136,7 +137,11 @@ void send_data(int sockfd, struct sockaddr_in cliaddr, char *data, int bytes_rea
     DATA.block_num = htons(block_num);
     memcpy(DATA.data, data, bytes_read);
 
-    sendto(sockfd, (void *) &DATA, (4 + bytes_read), 0, (struct sockaddr *) &cliaddr, sizeof(cliaddr));
+    if(sendto(sockfd, (void *) &DATA, (4 + bytes_read), 0, (struct sockaddr *) &cliaddr, sizeof(cliaddr)) == -1)
+    {
+        perror("sendto failed");
+        exit(EXIT_FAILURE);
+    }
 }
 
 void wait_for_ack(int sockfd, struct sockaddr_in cliaddr, char *data, int bytes_read, short block_num)
@@ -179,11 +184,12 @@ void wait_for_ack(int sockfd, struct sockaddr_in cliaddr, char *data, int bytes_
     }
 }
 
-void handle_read(int sockfd, struct sockaddr_in cliaddr, int TID, char *filename)
+void handle_read(int sockfd, struct sockaddr_in cliaddr, char *filename)
 {
     FILE *fp;
     char data[512] = {0};
     int bytes_read;
+    short TID = cliaddr.sin_port;
     short block_num = 0;
 
     if((fp = fopen(filename, "r")) == NULL)
@@ -203,41 +209,86 @@ void handle_read(int sockfd, struct sockaddr_in cliaddr, int TID, char *filename
     }
 }
 
-void init_read(int sockfd, struct sockaddr_in cliaddr, char *packet)
+struct data wait_for_data(int sockfd, struct sockaddr_in cliaddr, short block_num)
 {
-    int  TID = cliaddr.sin_port;
-    int  fname_len;
-    char filename[512] = {0};
-    char mode[20] = {0};
+    struct data DATA;
+    int byte_count;
+    int timeout_count = 0;
+    unsigned int cliaddr_len = sizeof(cliaddr);
 
-    strncat(filename, (packet + 2), sizeof(filename));
-
-    fname_len = (int) strlen(filename);
-
-    //printf("%s\n", filename);
-
-    strncat(mode, (packet + 3 + fname_len), sizeof(mode));
-
-    //printf("%s\n", mode);
-
-    if(strcmp("octet", mode) != 0)
+    while(1)
     {
-        char err_msg[40];
-        printf("mode: %s not supported\n", mode);
-        snprintf(err_msg, sizeof(err_msg), "%s not supported", mode);
-        send_err(sockfd, cliaddr, 0, err_msg);
+        alarm(1);
+
+        byte_count = recvfrom(sockfd, &DATA, sizeof(DATA), 0, (struct sockaddr *) &cliaddr, &cliaddr_len);
+        if(byte_count == -1)
+        {
+            if(errno == EINTR)
+            {
+                if(timeout_count < 10)
+                {
+                    send_ack(sockfd, cliaddr, block_num);
+                    timeout_count++;
+                }
+                else if(timeout_count == 10)
+                {
+                    printf("socket timed out while waiting for data\n");
+                    exit(0);
+                
+                }
+            }
+            else
+            {
+                perror("recvfrom failed");
+                exit(EXIT_FAILURE);
+            }
+        }
+        
+        DATA.byte_count = byte_count - 4;
+
+        if(DATA.block_num == htons(block_num))
+        {
+            return DATA;
+        }
+    }
+}
+
+void handle_write(int sockfd, struct sockaddr_in cliaddr, char *filename)
+{
+    FILE   *fp;
+    char   data[512] = {0};
+    short  block_num = 0;
+    struct data DATA;
+
+    if(access(filename, F_OK) == 0)
+    {
+        send_err(sockfd, cliaddr, 6, "File already exists.");
         exit(0);
     }
-    else
-        handle_read(sockfd, cliaddr, TID, filename);
+
+    fp = fopen(filename, "w");
+    if(fp == NULL)
+        handle_fopen_err(sockfd, cliaddr);
+
+    send_ack(sockfd, cliaddr, block_num);
+
+    while(1)
+    {
+        block_num++;
+        DATA = wait_for_data(sockfd, cliaddr, block_num);
+        send_ack(sockfd, cliaddr, block_num);
+        memcpy(&data, DATA.data, DATA.byte_count);
+        fwrite(&data, 1, DATA.byte_count, fp);
+
+        if(DATA.byte_count < 512)
+        {
+            fclose(fp);
+            exit(0);
+        }
+    }
 }
 
-void handle_write(int sockfd, struct sockaddr_in cliaddr, char *packet)
-{
-    send_ack(sockfd, cliaddr, 0);
-}
-
-void handle_requests(int sockfd, struct sockaddr_in cliaddr, socklen_t cliaddr_len)
+void handle_request(int sockfd, struct sockaddr_in cliaddr, socklen_t cliaddr_len)
 {
 
     int   mesg_len;
@@ -258,18 +309,30 @@ void handle_requests(int sockfd, struct sockaddr_in cliaddr, socklen_t cliaddr_l
 
         if((opcode == 1 || opcode == 2) && fork() == 0) //fork on read and write requests
         {
-            printf("forked\n");
-
             struct server_socket newsock = get_socket();
-            
-            if(opcode == 1)
+            int  fname_len;
+            char filename[512] = {0};
+            char mode[20] = {0};
+
+            strncat(filename, (packet + 2), sizeof(filename));
+
+            fname_len = (int) strlen(filename);
+
+            strncat(mode, (packet + 3 + fname_len), sizeof(mode));
+
+            if(strcmp("octet", mode) != 0)
             {
-                init_read(newsock.sockfd, cliaddr, packet);
+                char err_msg[40];
+                printf("%s not supported\n", mode);
+                snprintf(err_msg, sizeof(err_msg), "%s not supported", mode);
+                send_err(sockfd, cliaddr, 0, err_msg);
+                exit(0);
             }
             else
-            {
-                handle_write(newsock.sockfd, cliaddr, packet);
-            }
+                if(opcode == 1)
+                    handle_read(newsock.sockfd, cliaddr, filename);
+                else
+                    handle_write(newsock.sockfd, cliaddr, filename);
         }
     }
 }
@@ -285,5 +348,5 @@ int main(int argc, char **argv)
 
     signal(SIGALRM, sig_alrm);
 
-    handle_requests(servsock.sockfd, cliaddr, sizeof(cliaddr));
+    handle_request(servsock.sockfd, cliaddr, sizeof(cliaddr));
 }

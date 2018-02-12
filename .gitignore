@@ -3,3 +3,6 @@
 *.out
 *peda*
 *gdb*
+*.txt
+*.png
+*.jpeg
