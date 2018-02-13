@@ -1,0 +1,36 @@
+i want ppl to come out of it feeling like they have more knowledge of their vulnerability to government surveillance
+in the end this won't be super empowering probably, but the stuff that /is/ empowering will be like mathematically certain
+so open with examples of how we are all powerless
+
+    certificate authorities make all https useless
+    need vulnerabilities and gov. backdoors at all levels, so look for hardware stuff
+    unreliable ecc curves?
+    if there isn't a backdoor, there's a way through it (backdoor would be owning a cert authority, way around it would be classified crpyto breaking strategies)
+    
+    maybe talk about hard-to-mitigate vulns like rowhammer to show the depth of issues
+    
+
+maybe talk about historical examples? eff and DES, history of classified crypto/big iron
+
+segue to how they need really big computers to break crypto because it's reliant on mathematics, instead of trust in any central authority
+talk about modern examples of "good crypto" that are easily usable
+    
+    full disk encryption?
+    pgp obviously 
+    signal (maybe brief aside to talk about what's sus about it)
+    maybe more? i wanna keep it to actually useful things that are easy to download and use
+
+end with pgp workshop getting everyone set up with a public and private key pair
+
+---
+
+figure out what we'll need to actually run this
+
+how long should it be?
+
+how many people will we need for lecturing?
+
+how many people will we need for the pgp workshop?
+
+what materials will we need? thumb drives for private keys? something else? do we talk about linux or do we stick with windows?
+
