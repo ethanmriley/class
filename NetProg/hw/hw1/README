@@ -1,2 +1,4 @@
 tftp server implemented in C
 ethan riley, 2018
+
+port is printed to stdout with no other text to make automated testing easier for TA's. 

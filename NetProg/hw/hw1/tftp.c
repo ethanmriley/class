@@ -52,6 +52,16 @@ static void sig_alrm(int signo)
     return;
 }
 
+//tiny wrapper for sendto
+void Sendto(int sockfd, void *packet, int len, int flags, struct sockaddr *cliaddr, unsigned int cliaddr_len)
+{
+    if(sendto(sockfd, packet, len, flags, cliaddr, cliaddr_len) == -1)
+    {
+        perror("sendto failed");
+        exit(EXIT_FAILURE);
+    }
+}
+
 //get a socket on a random available port and return the info in a server_socket struct
 struct server_socket get_socket() 
 {
@@ -95,7 +105,7 @@ void send_err(int sockfd, struct sockaddr_in cliaddr, short err_code, char *err_
     ERR.err_code = htons(err_code);
     strncpy(ERR.err_msg, err_msg, sizeof(ERR.err_msg));
 
-    sendto(sockfd, (void *) &ERR, sizeof(ERR), 0, (struct sockaddr *) &cliaddr, sizeof(cliaddr));
+    Sendto(sockfd, (void *) &ERR, sizeof(ERR), 0, (struct sockaddr *) &cliaddr, sizeof(cliaddr));
 }
 
 //wrapper for sending acknowledgments
@@ -106,7 +116,7 @@ void send_ack(int sockfd, struct sockaddr_in cliaddr, short block_num)
     ACK.opcode = htons(4);
     ACK.block_num = htons(block_num);
 
-    sendto(sockfd, (void *) &ACK, sizeof(ACK), 0, (struct sockaddr *) &cliaddr, sizeof(cliaddr));
+    Sendto(sockfd, (void *) &ACK, sizeof(ACK), 0, (struct sockaddr *) &cliaddr, sizeof(cliaddr));
 }
 
 //distinguish what failed in fopen and send the correct err_code
@@ -135,14 +145,6 @@ void handle_fopen_err(int sockfd, struct sockaddr_in cliaddr)
     exit(0);
 }
 
-void Sendto(int sockfd, void *packet, int len, int flags, struct sockaddr *cliaddr, unsigned int cliaddr_len)
-{
-    if(sendto(sockfd, packet, len, flags, cliaddr, cliaddr_len) == -1)
-    {
-        perror("sendto failed");
-        exit(EXIT_FAILURE);
-    }
-}
 
 //wrapper to send data in a data packet
 void send_data(int sockfd, struct sockaddr_in cliaddr, char *data, int bytes_read, short block_num)
@@ -338,6 +340,11 @@ void handle_request(int sockfd, struct sockaddr_in cliaddr, socklen_t cliaddr_le
                     handle_read(newsock.sockfd, cliaddr, filename);
                 else
                     handle_write(newsock.sockfd, cliaddr, filename);
+        }
+        else if(opcode != 1 && opcode != 2)
+        {
+            send_err(sockfd, cliaddr, 4, "Illegal TFTP operation.");
+            //we don't exit here because that would end the parent server process
         }
     }
 }
