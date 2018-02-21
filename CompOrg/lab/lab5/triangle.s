@@ -1,23 +1,30 @@
     .data
-n:
-    .word 0
 ask:
     .asciiz "What is n? "
 
     .text
     .globl main
 main:
-    la $a0, ask
+    la $a0, ask #print string asking for input
     li $v0, 4
     syscall 
 
-    li $v0, 5
+    li $v0, 5 #read int to $v0
     syscall
 
-    sw $v0, n
+    move $t1, $v0 #store entered int in t1
+    li   $t0, 0   #use t0 as a counter, initialize to 0
+    
+header:
+    beq $t0, $t1, done
+    j body
 
-    li $v0, 1
-    lw $a0, n
-    syscall
+body:
+   j latch 
 
-    jr $ra
+latch:
+    addi $t0, $t0, 1 #increment our counter
+    j header
+
+done:
+     jr $ra   

@@ -1,0 +1,25 @@
+    .data
+
+n:
+    .word 0
+
+counter:
+    .word 0
+
+ask:
+    .asciiz "What is n? "
+
+    .text
+    .globl main
+
+main:
+    la $a0, ask #print string asking for input
+    li $v0, 4
+    syscall 
+
+    li $v0, 5 #read int to $v0
+    syscall
+
+    move $v0, $t1 #store entered int in t1
+    
+    jr $ra 
