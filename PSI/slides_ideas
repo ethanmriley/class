@@ -3,24 +3,30 @@ in the end this won't be super empowering probably, but the stuff that /is/ empo
 so open with examples of how we are all powerless
 
     certificate authorities make all https useless
-    need vulnerabilities and gov. backdoors at all levels, so look for hardware stuff
     unreliable ecc curves?
-    if there isn't a backdoor, there's a way through it (backdoor would be owning a cert authority, way around it would be classified crpyto breaking strategies)
+    advanced side-channel attacks like freezing ram, rowhammer, timing, tempest
     
     maybe talk about hard-to-mitigate vulns like rowhammer to show the depth of issues
     
+maybe talk about historical examples? 
+    eff and DES
+    history of classified crypto: ibm differential analysis
 
-maybe talk about historical examples? eff and DES, history of classified crypto/big iron
+wide net and threat modeling
+    international bit 
+    apple in china
+    five eyes
 
-segue to how they need really big computers to break crypto because it's reliant on mathematics, instead of trust in any central authority
-talk about modern examples of "good crypto" that are easily usable
+strategies to counter wide net surveillance?
+
+so what can we do?
+talk about modern tools that are easily usable
     
-    full disk encryption?
-    pgp obviously 
+    tails
     signal (maybe brief aside to talk about what's sus about it)
-    maybe more? i wanna keep it to actually useful things that are easy to download and use
+    tor
 
-end with pgp workshop getting everyone set up with a public and private key pair
+    
 
 ---
 
