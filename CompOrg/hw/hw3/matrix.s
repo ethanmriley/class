@@ -135,23 +135,65 @@ matrix_multiply:
     sw $s1, 16($sp)
     sw $s2, 20($sp)
 
+    move $t3, $a0 #t3 = A
+    move $t4, $a1 #t4 = B
+    li   $t6, 4
+
     #setup for i loop
+setup_i:
+    li $t0, 0
 
     #setup for j loop
+setup_j:
+    li $t1, 0
 
     #setup for k loop
+setup_k:   
+    li $t2, 0
 
+body:
     # compute A[i][k] address and load into $t3
+    move $a0, $t0
+    li   $a1, 4
+    jal  multiply
 
+    add $t3, $t3, $v0 #A[i]
+    add $t3, $t3, $t2 #A[i][k]
+ 
     # compute B[k][j] address and load into $t4
+    move $a0, $t2
+    li   $a1, 4
+    jal  multiply
+
+    add $t4, $t4, $v0 #B[k]
+    add $t4, $t4, $t1 #B[k][j]
 
     # call the multiply function
+    move $t5, $a2
+    move $a0, $t0
+    li   $a1, 4
+    jal  multiply
+
+    add $t5, $t5, $v0 #result[i]
+    add $t5, $t5, $t1 #result[i][j]
+    
+    lw $a0, $t3
+    lw $a1, $t4
+    jal multiply
+
+    sw $v0, $t5
 
     # increment k and jump back or exit
+    addi $t2, $t2, 1
+    blt $t2, t6, body
 
     #increment j and jump back or exit
+    addi $t1, $t1, 1
+    blt $t1, $t6, setup_k
 
     #increment i and jump back or exit
+    addi $t0, $t0, 1
+    blt $t0, $t6, setup_j
 
     # retore saved regs from stack
     lw $s2, 20($sp)
