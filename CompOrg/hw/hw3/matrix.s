@@ -88,11 +88,11 @@ main:
     jal matrix_ask
 
     la $a0, matrix_a
-    la $a1, matrix_b
-    la $a2, result
-    jal matrix_multiply
+#    la $a1, matrix_b
+#    la $a2, result
+#    jal matrix_multiply
 
-    la $a0, result
+#    la $a0, result
     jal matrix_print
 
     # restore $ra, free stack and return
@@ -135,65 +135,82 @@ matrix_multiply:
     sw $s1, 16($sp)
     sw $s2, 20($sp)
 
-    move $t3, $a0 #t3 = A
-    move $t4, $a1 #t4 = B
     li   $t6, 4
 
     #setup for i loop
-setup_i:
+mm_i:
     li $t0, 0
 
     #setup for j loop
-setup_j:
+mm_j:
     li $t1, 0
 
     #setup for k loop
-setup_k:   
+mm_k:   
     li $t2, 0
 
-body:
+mm_loop:
+
+    lw $t3, 4($sp)
+    lw $t4, 8($sp)
+ 
     # compute A[i][k] address and load into $t3
     move $a0, $t0
-    li   $a1, 4
+    li   $a1, 16
     jal  multiply
 
     add $t3, $t3, $v0 #A[i]
-    add $t3, $t3, $t2 #A[i][k]
+
+    move $a0, $t2
+    li   $a1, 4
+    jal multiply
+
+    add $t3, $t3, $v0 #A[i][k]
  
     # compute B[k][j] address and load into $t4
     move $a0, $t2
-    li   $a1, 4
+    li   $a1, 16
     jal  multiply
 
     add $t4, $t4, $v0 #B[k]
-    add $t4, $t4, $t1 #B[k][j]
+
+    move $a0, $t1
+    li   $a0, 4
+    jal  multiply
+
+    add $t4, $t4, $v0 #B[k][j]
 
     # call the multiply function
     move $t5, $a2
     move $a0, $t0
-    li   $a1, 4
+    li   $a1, 16
     jal  multiply
 
     add $t5, $t5, $v0 #result[i]
-    add $t5, $t5, $t1 #result[i][j]
+
+    move $a0, $t1
+    li   $a1, 4
+    jal  multiply
+
+    add $t5, $t5, $v0 #result[i][j]
     
-    lw $a0, $t3
-    lw $a1, $t4
+    lw $a0, 0($t3)
+    lw $a1, 0($t4)
     jal multiply
 
-    sw $v0, $t5
+    sw $v0, 0($t5)
 
     # increment k and jump back or exit
     addi $t2, $t2, 1
-    blt $t2, t6, body
+    blt $t2, $t6, mm_loop
 
     #increment j and jump back or exit
     addi $t1, $t1, 1
-    blt $t1, $t6, setup_k
+    blt $t1, $t6, mm_k
 
     #increment i and jump back or exit
     addi $t0, $t0, 1
-    blt $t0, $t6, setup_j
+    blt $t0, $t6, mm_j
 
     # retore saved regs from stack
     lw $s2, 20($sp)
@@ -218,12 +235,57 @@ matrix_print:
     sw $s1, 8($sp)
     sw $a0, 12($sp)
 
-    li $t0, 4 # size of array
+    li $t1, 0
+    li $t2, 0
 
-    # do your two loops here
+mp_i_head:
+    li  $t0, 4
+    li  $t2, 0
+    blt $t1, $t0, mp_j_head
+    j   mp_exit
 
-    # setup to jump back and return
+mp_j_head:
+    li  $t0, 4
+    blt $t2, $t0, mp_body
+    j   mp_i_latch
 
+mp_body:
+    lw $t3, 12($sp)
+
+    # compute A[i][j] address and load into $t3
+    move $a0, $t1
+    li   $a1, 16
+    jal  multiply
+
+    add $t3, $t3, $v0 #A[i]
+
+    move $a0, $t2
+    li   $a1, 4
+    jal  multiply
+
+    add $t3, $t3, $v0 #A[i][j]
+ 
+    lw $a0, 0($t3)
+    li $v0, 1
+    syscall
+
+    la $a0, tab
+    li $v0, 4
+    syscall
+
+mp_j_latch:
+    addi $t2, $t2, 1
+    j mp_j_head
+
+mp_i_latch:
+    la $a0, newline
+    li $v0, 4
+    syscall
+
+    addi $t1, $t1, 1
+    j mp_i_head
+
+mp_exit:
     lw $ra, 0($sp)
     lw $s0, 4($sp)
     lw $s1, 8($sp)
