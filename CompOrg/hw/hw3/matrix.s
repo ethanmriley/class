@@ -147,12 +147,12 @@ mm_j_head:
     li $t6, 4
     li $t2, 0
     blt $t1, $t6, mm_k_head
-    j mm_i_head
+    j mm_i_latch
 
 mm_k_head:   
     li $t6, 4
     blt $t2, $t6, mm_body
-    j mm_j_head
+    j mm_j_latch
 
 mm_body:
     lw $t3, 4($sp)
