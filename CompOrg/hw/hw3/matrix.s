@@ -88,11 +88,11 @@ main:
     jal matrix_ask
 
     la $a0, matrix_a
-#    la $a1, matrix_b
-#    la $a2, result
-#    jal matrix_multiply
+    la $a1, matrix_b
+    la $a2, result
+    jal matrix_multiply
 
-#    la $a0, result
+    la $a0, result
     jal matrix_print
 
     # restore $ra, free stack and return
@@ -135,22 +135,26 @@ matrix_multiply:
     sw $s1, 16($sp)
     sw $s2, 20($sp)
 
-    li   $t6, 4
-
-    #setup for i loop
-mm_i:
     li $t0, 0
 
-    #setup for j loop
-mm_j:
+mm_i_head:
+    li $t6, 4
     li $t1, 0
+    blt $t0, $t6, mm_j_head
+    j mm_exit
 
-    #setup for k loop
-mm_k:   
+mm_j_head:
+    li $t6, 4
     li $t2, 0
+    blt $t1, $t6, mm_k_head
+    j mm_i_head
 
-mm_loop:
+mm_k_head:   
+    li $t6, 4
+    blt $t2, $t6, mm_body
+    j mm_j_head
 
+mm_body:
     lw $t3, 4($sp)
     lw $t4, 8($sp)
  
@@ -201,18 +205,22 @@ mm_loop:
     sw $v0, 0($t5)
 
     # increment k and jump back or exit
+mm_k_latch:
     addi $t2, $t2, 1
-    blt $t2, $t6, mm_loop
+    j mm_k_head
 
+mm_j_latch:
     #increment j and jump back or exit
     addi $t1, $t1, 1
-    blt $t1, $t6, mm_k
+    j mm_j_head
 
+mm_i_latch:
     #increment i and jump back or exit
     addi $t0, $t0, 1
-    blt $t0, $t6, mm_j
+    j mm_i_head
 
-    # retore saved regs from stack
+mm_exit:
+    # restore saved regs from stack
     lw $s2, 20($sp)
     lw $s1, 16($sp)
     lw $s0, 12($sp)
