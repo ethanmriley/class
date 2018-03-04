@@ -1,6 +1,6 @@
 #############################################################################
 #############################################################################
-## Assignment 3: Your Name Goes Here!
+## Assignment 3: Ethan Riley 
 #############################################################################
 #############################################################################
 
@@ -82,10 +82,10 @@ main:
     sw $ra, 0($sp)
 
     # load A, B, and result into arg regs
-    la $a0, matrix_a
-    jal matrix_ask
-    la $a0, matrix_b
-    jal matrix_ask
+    #la $a0, matrix_a
+    #jal matrix_ask
+    #la $a0, matrix_b
+    #jal matrix_ask
 
     la $a0, matrix_a
     la $a1, matrix_b
@@ -157,52 +157,44 @@ mm_k_head:
 mm_body:
     lw $t3, 4($sp)
     lw $t4, 8($sp)
- 
-    # compute A[i][k] address and load into $t3
-    move $a0, $t0
-    li   $a1, 16
-    jal  multiply
+    la $t5, result
+    li $t7, 16 
 
+    # compute A[i][k] address and load into $t3
+    multu $t0, $t7  
+    mflo  $v0
     add $t3, $t3, $v0 #A[i]
 
-    move $a0, $t2
-    li   $a1, 4
-    jal multiply
-
+    multu $t2, $t6
+    mflo  $v0
     add $t3, $t3, $v0 #A[i][k]
  
     # compute B[k][j] address and load into $t4
-    move $a0, $t2
-    li   $a1, 16
-    jal  multiply
-
+    multu $t2, $t7
+    mflo $v0
     add $t4, $t4, $v0 #B[k]
 
-    move $a0, $t1
-    li   $a0, 4
-    jal  multiply
-
+    multu $t1, $t6
+    mflo $v0   
     add $t4, $t4, $v0 #B[k][j]
 
-    # call the multiply function
-    move $t5, $a2
-    move $a0, $t0
-    li   $a1, 16
-    jal  multiply
-
+    multu $t0, $t7
+    mflo $v0
     add $t5, $t5, $v0 #result[i]
 
-    move $a0, $t1
-    li   $a1, 4
-    jal  multiply
-
+    multu $t1, $t6
+    mflo $v0
     add $t5, $t5, $v0 #result[i][j]
-    
-    lw $a0, 0($t3)
-    lw $a1, 0($t4)
-    jal multiply
 
-    sw $v0, 0($t5)
+    lw $a0, 0($t3) #A[i][k]
+    lw $a1, 0($t4) #B[k][j]
+    multu $a0, $a1
+    mflo $v0
+
+    lw $t7, 0($t5)
+    add $t7, $t7, $v0 #result[i][j] += A[i][k] * B[k][j]
+
+    sw $t7, 0($t5)
 
     # increment k and jump back or exit
 mm_k_latch:
@@ -260,20 +252,20 @@ mp_j_head:
 mp_body:
     lw $t3, 12($sp)
 
-    # compute A[i][j] address and load into $t3
+    # compute result[i][j] address and load into $t3
     move $a0, $t1
     li   $a1, 16
     jal  multiply
 
-    add $t3, $t3, $v0 #A[i]
+    add $t3, $t3, $v0 #result[i]
 
     move $a0, $t2
     li   $a1, 4
     jal  multiply
 
-    add $t3, $t3, $v0 #A[i][j]
+    add $t3, $t3, $v0 #result[i][j]
  
-    lw $a0, 0($t3)
+    lw $a0, 0($t3) #printf("%d\t", result[i][j])
     li $v0, 1
     syscall
 
