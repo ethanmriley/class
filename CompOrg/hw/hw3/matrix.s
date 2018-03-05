@@ -16,6 +16,9 @@ matrix_a:    .word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 matrix_b:    .word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 result:      .word 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0
 
+ask_a:       .asciiz "Enter the values for matrix A:\n"
+ask_b:       .asciiz "Enter the values for matrix B:\n"
+product:     .asciiz "Product A x B matrices:\n"
 newline:     .asciiz "\n"
 tab:         .asciiz "\t"
 
@@ -82,15 +85,28 @@ main:
     sw $ra, 0($sp)
 
     # load A, B, and result into arg regs
-    #la $a0, matrix_a
-    #jal matrix_ask
-    #la $a0, matrix_b
-    #jal matrix_ask
+    li $v0, 4
+    la $a0, ask_a
+    syscall
+
+    la $a0, matrix_a
+    jal matrix_ask
+
+    li $v0, 4
+    la $a0, ask_b
+    syscall
+
+    la $a0, matrix_b
+    jal matrix_ask
 
     la $a0, matrix_a
     la $a1, matrix_b
     la $a2, result
     jal matrix_multiply
+
+    li $v0, 4
+    la $a0, product
+    syscall
 
     la $a0, result
     jal matrix_print
