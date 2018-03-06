@@ -1,0 +1,55 @@
+key functionality:
+    automatic sending of emails at certain time without cancellation
+
+big decisions:
+    reliability is an issue, so probably best to do this from a server, not user's machine
+    we can do both though
+    
+    probably do it in python? there can be a frontend in electron or something 
+    
+    server and user can use same core python utils for timer, sending, etc
+
+    need to make requests from the user to the server, probably use encryption or else MITM
+
+python libraries needed:
+    emails
+        gmail: https://developers.google.com/gmail/api/auth/scopes  send-only
+        support for local mail clients?
+        support for other webmail?
+    timer
+        datetime
+    https requests (need tcp to ensure our request is received)
+        httplib
+    
+
+we'll need to log in to the user's email acc, so they should be able to provide their details
+also provide links to sign up for email acc
+
+assumptions:
+    no timezone weirdness
+    user's machine has correct time and will always have correct time
+
+frontend:
+    electron
+    
+
+there's a question of python vs js:
+    electron runs in all nodejs, so i could just do all of the stuff i need in nodejs instead of python
+    then i wouldn't need to do ipc between the server and the frontend when its running on their local machine. 
+    it would also be cleaner, prettier, and easier to use.
+
+k so i need a node.js alternative for all of my functionality.
+
+nodejs libraries needed:
+    emails
+        gmail: https://developers.google.com/gmail/api/auth/scopes  send-only
+        same as python
+    timer
+        Date()
+        getime()
+    https requests (need tcp to ensure our request is received)
+        express
+        
+i think the server itself is fine just in python, with an electron client that talks to it.
+
+write the server first to avoid frontend work and lay down the core functionality.
