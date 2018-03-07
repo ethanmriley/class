@@ -1,6 +1,6 @@
 #############################################################################
 #############################################################################
-## Assignment 3: Your Name Goes Here!
+## Assignment 3: Ethan Riley 
 #############################################################################
 #############################################################################
 
@@ -16,6 +16,9 @@ matrix_a:    .word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 matrix_b:    .word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 result:      .word 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0
 
+ask_a:       .asciiz "Enter the values for matrix A:\n"
+ask_b:       .asciiz "Enter the values for matrix B:\n"
+product:     .asciiz "Product A x B matrices:\n"
 newline:     .asciiz "\n"
 tab:         .asciiz "\t"
 
@@ -82,8 +85,17 @@ main:
     sw $ra, 0($sp)
 
     # load A, B, and result into arg regs
+    li $v0, 4
+    la $a0, ask_a
+    syscall
+
     la $a0, matrix_a
     jal matrix_ask
+
+    li $v0, 4
+    la $a0, ask_b
+    syscall
+
     la $a0, matrix_b
     jal matrix_ask
 
@@ -91,6 +103,10 @@ main:
     la $a1, matrix_b
     la $a2, result
     jal matrix_multiply
+
+    li $v0, 4
+    la $a0, product
+    syscall
 
     la $a0, result
     jal matrix_print
@@ -135,25 +151,84 @@ matrix_multiply:
     sw $s1, 16($sp)
     sw $s2, 20($sp)
 
-    #setup for i loop
+    li $t0, 0
 
-    #setup for j loop
+mm_i_head:
+    li $t6, 4
+    li $t1, 0
+    blt $t0, $t6, mm_j_head
+    j mm_exit
 
-    #setup for k loop
+mm_j_head:
+    li $t6, 4
+    li $t2, 0
+    blt $t1, $t6, mm_k_head
+    j mm_i_latch
+
+mm_k_head:   
+    li $t6, 4
+    blt $t2, $t6, mm_body
+    j mm_j_latch
+
+mm_body:
+    lw $t3, 4($sp)
+    lw $t4, 8($sp)
+    la $t5, result
+    li $t7, 16 
 
     # compute A[i][k] address and load into $t3
+    multu $t0, $t7  
+    mflo  $v0
+    add $t3, $t3, $v0 #A[i]
 
+    multu $t2, $t6
+    mflo  $v0
+    add $t3, $t3, $v0 #A[i][k]
+ 
     # compute B[k][j] address and load into $t4
+    multu $t2, $t7
+    mflo $v0
+    add $t4, $t4, $v0 #B[k]
 
-    # call the multiply function
+    multu $t1, $t6
+    mflo $v0   
+    add $t4, $t4, $v0 #B[k][j]
+
+    multu $t0, $t7
+    mflo $v0
+    add $t5, $t5, $v0 #result[i]
+
+    multu $t1, $t6
+    mflo $v0
+    add $t5, $t5, $v0 #result[i][j]
+
+    lw $a0, 0($t3) #A[i][k]
+    lw $a1, 0($t4) #B[k][j]
+    multu $a0, $a1
+    mflo $v0
+
+    lw $t7, 0($t5)
+    add $t7, $t7, $v0 #result[i][j] += A[i][k] * B[k][j]
+
+    sw $t7, 0($t5)
 
     # increment k and jump back or exit
+mm_k_latch:
+    addi $t2, $t2, 1
+    j mm_k_head
 
+mm_j_latch:
     #increment j and jump back or exit
+    addi $t1, $t1, 1
+    j mm_j_head
 
+mm_i_latch:
     #increment i and jump back or exit
+    addi $t0, $t0, 1
+    j mm_i_head
 
-    # retore saved regs from stack
+mm_exit:
+    # restore saved regs from stack
     lw $s2, 20($sp)
     lw $s1, 16($sp)
     lw $s0, 12($sp)
@@ -176,12 +251,57 @@ matrix_print:
     sw $s1, 8($sp)
     sw $a0, 12($sp)
 
-    li $t0, 4 # size of array
+    li $t1, 0
+    li $t2, 0
 
-    # do your two loops here
+mp_i_head:
+    li  $t0, 4
+    li  $t2, 0
+    blt $t1, $t0, mp_j_head
+    j   mp_exit
 
-    # setup to jump back and return
+mp_j_head:
+    li  $t0, 4
+    blt $t2, $t0, mp_body
+    j   mp_i_latch
 
+mp_body:
+    lw $t3, 12($sp)
+
+    # compute result[i][j] address and load into $t3
+    move $a0, $t1
+    li   $a1, 16
+    jal  multiply
+
+    add $t3, $t3, $v0 #result[i]
+
+    move $a0, $t2
+    li   $a1, 4
+    jal  multiply
+
+    add $t3, $t3, $v0 #result[i][j]
+ 
+    lw $a0, 0($t3) #printf("%d\t", result[i][j])
+    li $v0, 1
+    syscall
+
+    la $a0, tab
+    li $v0, 4
+    syscall
+
+mp_j_latch:
+    addi $t2, $t2, 1
+    j mp_j_head
+
+mp_i_latch:
+    la $a0, newline
+    li $v0, 4
+    syscall
+
+    addi $t1, $t1, 1
+    j mp_i_head
+
+mp_exit:
     lw $ra, 0($sp)
     lw $s0, 4($sp)
     lw $s1, 8($sp)
