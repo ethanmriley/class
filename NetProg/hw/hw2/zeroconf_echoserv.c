@@ -15,6 +15,8 @@ MyRegisterCallBack(DNSServiceRef service,
 	#pragma unused(flags)
 	#pragma unused(context)
 
+    printf("called\n");
+
 	if (errorCode != kDNSServiceErr_NoError)
 		fprintf(stderr, "MyRegisterCallBack returned %d\n", errorCode);
 	else
