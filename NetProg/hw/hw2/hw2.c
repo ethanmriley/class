@@ -9,39 +9,47 @@
 #include <ctype.h>
 #include <unistd.h>
 
+//zeroconf rps server
+//ethan riley, 2018
+
+//this struct holds the state for the game
 struct game
     {
-    //this struct will be passed around my series of calls
     char player_names[2][40];
     char player_choices[2][10];
     int  player_sockets[2];
-    int  player_number;
+    //keep track of which player we're talking to
+    int  player_number;  
     };
 
-
+//helper struct to make getting a socket a little easier
 struct server_socket 
     {
     int sockfd;
     struct sockaddr_in sockaddr;
     };
 
+//convert a string in place to uppercase
 char* strupper(char* input_string)
     {
     for(unsigned int i = 0; i < strlen(input_string); i++)
         input_string[i] = toupper((int)input_string[i]);
     }
 
+//checks for whitespace, removes newlines
 int validateName(char* string)
     {
     int result = 0;
     for(unsigned int i = 0; i < strlen(string); i++)
         {
+        //if we've encountered a newline, null it 
         if(string[i] == '\n')
             {
             string[i] = '\0';
             continue;
             }
 
+        //flip the result if we encounter any non-whitespace/null characters
         if((isspace(string[i]) == 0) && ((int)string[i] != 0))
             result = 1;
         }
@@ -62,7 +70,7 @@ struct server_socket get_socket()
 
     rps_sock.sockaddr.sin_family      = AF_INET;
     rps_sock.sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    rps_sock.sockaddr.sin_port        = 0;
+    rps_sock.sockaddr.sin_port        = 0; //ask for a port from the OS
     
     if (bind(rps_sock.sockfd, (struct sockaddr*)&rps_sock.sockaddr, sockaddr_len) == -1)
         {
@@ -70,16 +78,17 @@ struct server_socket get_socket()
         exit(EXIT_FAILURE);
         }
 
+    //fill in rps_sock.sockaddr.sin_port with the port the OS assigned us
     if (getsockname(rps_sock.sockfd, (struct sockaddr*)&rps_sock.sockaddr, &sockaddr_len) == -1)
         {
         perror("getsockname failed");
         exit(EXIT_FAILURE);
         }
 
-
     return rps_sock;
     }
 
+//from zeroconf code exactly
 static void
 MyRegisterCallBack(DNSServiceRef service,
 				   DNSServiceFlags flags,
@@ -122,6 +131,7 @@ DNSServiceRef advertiseService(short port)
     return serviceRef;
     }
 
+//undo the effects of the most recent connection
 void undo_game(struct game* current_game)
     {
     int current_player = (*current_game).player_number;
@@ -132,6 +142,7 @@ void undo_game(struct game* current_game)
     return;
     }
 
+//reset state to the beginning of a game
 void reset_game(struct game* current_game)
     {
     bzero(current_game, sizeof(struct game));
@@ -140,7 +151,6 @@ void reset_game(struct game* current_game)
 
 void new_connection(int servfd, struct game* current_game)
     {
-
     struct sockaddr_in client;
     int cliaddr_len = sizeof(client);
     int err;
@@ -159,28 +169,26 @@ void new_connection(int servfd, struct game* current_game)
         return;
         }
 
-    (*current_game).player_number++;
+    (*current_game).player_number++; //we're handling a new player, so increment counter
     current_player = (*current_game).player_number;
-    (*current_game).player_sockets[current_player] = new_sock;
+    (*current_game).player_sockets[current_player] = new_sock; //keep track of the sockfd
 
     while(validateName(name) == 0)
         {
         err = send(new_sock, &ask_name, sizeof(ask_name), 0);
-        if (err == -1)
+        if (err == -1) //if there was an error in sending (the socket closed) undo the game
             {
             undo_game(current_game);
             return;
             }
 
         bytes_recv = recv(new_sock, &name, sizeof(name), 0);
-        if (bytes_recv == 0) 
+        if (bytes_recv == 0) //if we only recv 0 bytes then the connection closed 
             {
             undo_game(current_game);
             return;
             }
         }
-
-    strupper(name);
 
     while((strcmp(choice, "ROCK") != 0) && (strcmp(choice, "PAPER") != 0) && (strcmp(choice, "SCISSORS") != 0))
         {
@@ -202,13 +210,14 @@ void new_connection(int servfd, struct game* current_game)
         }
 
 
+    //fill in our game struct with the current player's info
     memcpy((*current_game).player_names[current_player], &name, sizeof(name));
     memcpy((*current_game).player_choices[current_player], &choice, sizeof(choice));
 
     return;
     }
 
-
+//takes a filled in game struct and determines the winner, sends that info to both clients, and closes sockets
 void finish_game(struct game* current_game)
     {
     char player1[40];
@@ -257,6 +266,7 @@ void finish_game(struct game* current_game)
             sprintf(result, "SCISSORS ties SCISSORS! %s ties %s!\n", player1, player2);
         }
 
+    //we don't care if the info makes it so no error checking on these
     send(socket1, &result, strlen(result), 0);
     send(socket2, &result, strlen(result), 0);
 
@@ -271,7 +281,6 @@ void finish_game(struct game* current_game)
 
 int main (int argc, const char * argv[])
 	{
-
     int daemonfd;
     int nfds;
     int result;
@@ -281,14 +290,17 @@ int main (int argc, const char * argv[])
     DNSServiceRef serviceRef;
     fd_set readfds;
 
+    //prevent process from stopping when a send() fails
     signal(SIGPIPE, SIG_IGN);
     
+    //get a socket and advertise our service
     rps_sock = get_socket(); 
     serviceRef = advertiseService(rps_sock.sockaddr.sin_port);
 
     daemonfd = DNSServiceRefSockFD(serviceRef);
     nfds = daemonfd + 1;
 
+    //initialize player number
     current_game.player_number = -1;
 
     while(1) 
@@ -313,6 +325,7 @@ int main (int argc, const char * argv[])
         else 
             perror("select failed");
         
+        //check the player number and finish the game
         if (current_game.player_number == 1)
             finish_game(&current_game);
        
