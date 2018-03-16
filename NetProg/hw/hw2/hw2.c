@@ -6,12 +6,30 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <signal.h>
+#include <ctype.h>
+#include <unistd.h>
+
+struct game
+    {
+    //this struct will be passed around my series of calls
+    char player_names[2][40];
+    char player_choices[2][10];
+    int  player_sockets[2];
+    int  player_number;
+    };
+
 
 struct server_socket 
     {
     int sockfd;
     struct sockaddr_in sockaddr;
     };
+
+char* strupper(char* input_string)
+    {
+    for(unsigned int i = 0; i < strlen(input_string); i++)
+        input_string[i] = toupper((int)input_string[i]);
+    }
 
 struct server_socket get_socket()
     {
@@ -87,28 +105,111 @@ DNSServiceRef advertiseService(short port)
     return serviceRef;
     }
 
-void new_connection(int servfd)
+void new_connection(int servfd, struct game* current_game)
     {
-
-    signal(SIGPIPE, SIG_IGN);
 
     struct sockaddr_in client;
     int cliaddr_len = sizeof(client);
-    int new_sock = accept(servfd, (struct sockaddr*)&client, &cliaddr_len);
     int err;
+    int new_sock;
+    int current_player;
+    char ask_name[] = "What is your name?\n";
+    char ask_rps[] = "Rock, paper, or scissors?\n";
+    char name[40] = {0};
+    char choice[10] = {0};
 
-    while(1)//echo infinitely TODO change to select loop
+    new_sock = accept(servfd, (struct sockaddr*)&client, &cliaddr_len);
+    if (new_sock == -1)
         {
-        char msg[40];
-        bzero(&msg, sizeof(msg));
-        recv(new_sock, msg, sizeof(msg), 0);
-        //printf("recv: %s", msg);
-        err = send(new_sock, &msg, sizeof(msg), 0);
-        if (err == -1)
-            break;
-        //printf("send\n");
-        }    
-    printf("it doesn't die\n");
+        perror("accept failed");
+        return;
+        }
+
+    (*current_game).player_number++;
+    current_player = (*current_game).player_number;
+    memcpy(&(*current_game).player_sockets[current_player], &new_sock, sizeof(int));
+
+    err = send(new_sock, &ask_name, sizeof(ask_name), 0);
+    if (err == -1)
+        return;
+
+    recv(new_sock, &name, sizeof(name), 0);
+
+    err = send(new_sock, &ask_rps, sizeof(ask_rps), 0);
+    if (err == -1)
+        return;
+
+    recv(new_sock, &choice, sizeof(choice), 0);
+
+    strupper(choice);
+    strupper(name);
+
+    choice[strlen(choice) - 1] = '\0';
+    name[strlen(name) - 1] = '\0';
+
+    memcpy((*current_game).player_names[current_player], &name, sizeof(name));
+    memcpy((*current_game).player_choices[current_player], &choice, sizeof(choice));
+
+    return;
+    }
+
+
+void finish_game(struct game* current_game)
+    {
+    char player1[40];
+    char choice1[10];
+    char player2[40];
+    char choice2[10];
+    int  socket1;
+    int  socket2;
+    char result[200] = {0};
+    char test[] = "test\n";
+    int  winner;
+
+    memcpy(&player1, (*current_game).player_names[0], sizeof(player1));
+    memcpy(&choice1, (*current_game).player_choices[0], sizeof(choice1));
+    memcpy(&player2, (*current_game).player_names[1], sizeof(player2));
+    memcpy(&choice2, (*current_game).player_choices[1], sizeof(choice2));
+    socket1 = (*current_game).player_sockets[0];
+    socket2 = (*current_game).player_sockets[1];
+
+
+    if (strcmp(choice1, "ROCK") == 0)    
+        {
+        if (strcmp(choice2, "ROCK") == 0)    
+            sprintf(result, "ROCK ties ROCK! %s ties %s!\n", player1, player2);
+        else if (strcmp(choice2, "PAPER") == 0)    
+            sprintf(result, "PAPER covers ROCK! %s defeats %s!\n", player2, player1);
+        else if (strcmp(choice2, "SCISSORS") == 0)    
+            sprintf(result, "ROCK smashes SCISSORS! %s defeats %s!\n", player1, player2);
+        }
+    else if (strcmp(choice1, "PAPER") == 0)    
+        {
+        if (strcmp(choice2, "ROCK") == 0)    
+            sprintf(result, "PAPER covers ROCK! %s defeats %s!\n", player1, player2);
+        else if (strcmp(choice2, "PAPER") == 0)    
+            sprintf(result, "PAPER ties PAPER! %s ties %s!\n", player1, player2);
+        else if (strcmp(choice2, "SCISSORS") == 0)    
+            sprintf(result, "SCISSORS cuts PAPER! %s defeats %s!\n", player2, player1);
+        }
+    else if (strcmp(choice1, "SCISSORS") == 0)    
+        {
+        if (strcmp(choice2, "ROCK") == 0)    
+            sprintf(result, "ROCK smashes SCISSORS! %s defeats %s!\n", player2, player1);
+        else if (strcmp(choice2, "PAPER") == 0)    
+            sprintf(result, "SCISSORS cuts PAPER! %s defeats %s!\n", player1, player2);
+        else if (strcmp(choice2, "SCISSORS") == 0)    
+            sprintf(result, "SCISSORS ties SCISSORS! %s ties %s!\n", player1, player2);
+        }
+
+    send(socket1, &result, strlen(result), 0);
+    send(socket2, &result, strlen(result), 0);
+
+    close(socket1);
+    close(socket2);
+
+    return;
+    
     }
 
 int main (int argc, const char * argv[])
@@ -119,14 +220,19 @@ int main (int argc, const char * argv[])
     int result;
     struct timeval tv;
     struct server_socket rps_sock;
+    struct game current_game = {0};
     DNSServiceRef serviceRef;
     fd_set readfds;
+
+    signal(SIGPIPE, SIG_IGN);
     
     rps_sock = get_socket(); 
     serviceRef = advertiseService(rps_sock.sockaddr.sin_port);
 
     daemonfd = DNSServiceRefSockFD(serviceRef);
     nfds = daemonfd + 1;
+
+    current_game.player_number = -1;
 
     while(1) 
         {
@@ -145,10 +251,14 @@ int main (int argc, const char * argv[])
                 DNSServiceProcessResult(serviceRef);
             
             if (FD_ISSET(rps_sock.sockfd, &readfds))
-                new_connection(rps_sock.sockfd);
+                new_connection(rps_sock.sockfd, &current_game);
             }
         else 
-            perror("select failed"); 
+            perror("select failed");
+        
+        if (current_game.player_number == 1)
+            finish_game(&current_game);
+       
         }
 
 	return 0;
