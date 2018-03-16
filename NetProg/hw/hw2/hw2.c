@@ -105,12 +105,29 @@ DNSServiceRef advertiseService(short port)
     return serviceRef;
     }
 
+void undo_game(struct game* current_game)
+    {
+    int current_player = (*current_game).player_number;
+    bzero((*current_game).player_names[current_player], 40);
+    bzero((*current_game).player_choices[current_player], 10);
+    (*current_game).player_sockets[current_player] = 0;
+    (*current_game).player_number--;
+    return;
+    }
+
+void reset_game(struct game* current_game)
+    {
+    bzero(current_game, sizeof(struct game));
+    (*current_game).player_number = -1;
+    }
+
 void new_connection(int servfd, struct game* current_game)
     {
 
     struct sockaddr_in client;
     int cliaddr_len = sizeof(client);
     int err;
+    int bytes_recv;
     int new_sock;
     int current_player;
     char ask_name[] = "What is your name?\n";
@@ -127,19 +144,35 @@ void new_connection(int servfd, struct game* current_game)
 
     (*current_game).player_number++;
     current_player = (*current_game).player_number;
-    memcpy(&(*current_game).player_sockets[current_player], &new_sock, sizeof(int));
+    (*current_game).player_sockets[current_player] = new_sock;
 
     err = send(new_sock, &ask_name, sizeof(ask_name), 0);
     if (err == -1)
+        {
+        undo_game(current_game);
         return;
+        }
 
-    recv(new_sock, &name, sizeof(name), 0);
+    bytes_recv = recv(new_sock, &name, sizeof(name), 0);
+    if (bytes_recv == 0) 
+        {
+        undo_game(current_game);
+        return;
+        }
 
     err = send(new_sock, &ask_rps, sizeof(ask_rps), 0);
     if (err == -1)
+        {
+        undo_game(current_game);
         return;
+        }
 
-    recv(new_sock, &choice, sizeof(choice), 0);
+    bytes_recv = recv(new_sock, &choice, sizeof(choice), 0);
+    if (bytes_recv == 0)
+        {
+        undo_game(current_game);
+        return;
+        }
 
     strupper(choice);
     strupper(name);
@@ -202,11 +235,14 @@ void finish_game(struct game* current_game)
             sprintf(result, "SCISSORS ties SCISSORS! %s ties %s!\n", player1, player2);
         }
 
+    printf("sending\n");
     send(socket1, &result, strlen(result), 0);
     send(socket2, &result, strlen(result), 0);
 
     close(socket1);
     close(socket2);
+
+    reset_game(current_game);
 
     return;
     
@@ -256,6 +292,7 @@ int main (int argc, const char * argv[])
         else 
             perror("select failed");
         
+        printf("player_number: %d\n", current_game.player_number);
         if (current_game.player_number == 1)
             finish_game(&current_game);
        
