@@ -1,0 +1,3 @@
+rps server with zeroconf
+
+when a client disconnects unexpectedly, the game state is reset and my server waits for a new client

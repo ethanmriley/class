@@ -146,36 +146,42 @@ void new_connection(int servfd, struct game* current_game)
     current_player = (*current_game).player_number;
     (*current_game).player_sockets[current_player] = new_sock;
 
-    err = send(new_sock, &ask_name, sizeof(ask_name), 0);
-    if (err == -1)
+    while(strlen(name) < 2)
         {
-        undo_game(current_game);
-        return;
+        err = send(new_sock, &ask_name, sizeof(ask_name), 0);
+        if (err == -1)
+            {
+            undo_game(current_game);
+            return;
+            }
+
+        bytes_recv = recv(new_sock, &name, sizeof(name), 0);
+        if (bytes_recv == 0) 
+            {
+            undo_game(current_game);
+            return;
+            }
         }
 
-    bytes_recv = recv(new_sock, &name, sizeof(name), 0);
-    if (bytes_recv == 0) 
-        {
-        undo_game(current_game);
-        return;
-        }
-
-    err = send(new_sock, &ask_rps, sizeof(ask_rps), 0);
-    if (err == -1)
-        {
-        undo_game(current_game);
-        return;
-        }
-
-    bytes_recv = recv(new_sock, &choice, sizeof(choice), 0);
-    if (bytes_recv == 0)
-        {
-        undo_game(current_game);
-        return;
-        }
-
-    strupper(choice);
     strupper(name);
+
+    while((strcmp(choice, "ROCK\n") != 0) && (strcmp(choice, "PAPER\n") != 0) && (strcmp(choice, "SCISSORS\n") != 0))
+        {
+        err = send(new_sock, &ask_rps, sizeof(ask_rps), 0);
+        if (err == -1)
+            {
+            undo_game(current_game);
+            return;
+            }
+
+        bytes_recv = recv(new_sock, &choice, sizeof(choice), 0);
+        if (bytes_recv == 0)
+            {
+            undo_game(current_game);
+            return;
+            }
+        strupper(choice);
+        }
 
     choice[strlen(choice) - 1] = '\0';
     name[strlen(name) - 1] = '\0';
@@ -235,7 +241,6 @@ void finish_game(struct game* current_game)
             sprintf(result, "SCISSORS ties SCISSORS! %s ties %s!\n", player1, player2);
         }
 
-    printf("sending\n");
     send(socket1, &result, strlen(result), 0);
     send(socket2, &result, strlen(result), 0);
 
@@ -292,7 +297,6 @@ int main (int argc, const char * argv[])
         else 
             perror("select failed");
         
-        printf("player_number: %d\n", current_game.player_number);
         if (current_game.player_number == 1)
             finish_game(&current_game);
        
