@@ -31,6 +31,23 @@ char* strupper(char* input_string)
         input_string[i] = toupper((int)input_string[i]);
     }
 
+int validateName(char* string)
+    {
+    int result = 0;
+    for(unsigned int i = 0; i < strlen(string); i++)
+        {
+        if(string[i] == '\n')
+            {
+            string[i] = '\0';
+            continue;
+            }
+
+        if((isspace(string[i]) == 0) && ((int)string[i] != 0))
+            result = 1;
+        }
+    return result;
+    }
+
 struct server_socket get_socket()
     {
     struct server_socket rps_sock;
@@ -146,7 +163,7 @@ void new_connection(int servfd, struct game* current_game)
     current_player = (*current_game).player_number;
     (*current_game).player_sockets[current_player] = new_sock;
 
-    while(strlen(name) < 2)
+    while(validateName(name) == 0)
         {
         err = send(new_sock, &ask_name, sizeof(ask_name), 0);
         if (err == -1)
@@ -165,7 +182,7 @@ void new_connection(int servfd, struct game* current_game)
 
     strupper(name);
 
-    while((strcmp(choice, "ROCK\n") != 0) && (strcmp(choice, "PAPER\n") != 0) && (strcmp(choice, "SCISSORS\n") != 0))
+    while((strcmp(choice, "ROCK") != 0) && (strcmp(choice, "PAPER") != 0) && (strcmp(choice, "SCISSORS") != 0))
         {
         err = send(new_sock, &ask_rps, sizeof(ask_rps), 0);
         if (err == -1)
@@ -181,10 +198,9 @@ void new_connection(int servfd, struct game* current_game)
             return;
             }
         strupper(choice);
+        choice[strlen(choice) - 1] = '\0';
         }
 
-    choice[strlen(choice) - 1] = '\0';
-    name[strlen(name) - 1] = '\0';
 
     memcpy((*current_game).player_names[current_player], &name, sizeof(name));
     memcpy((*current_game).player_choices[current_player], &choice, sizeof(choice));
