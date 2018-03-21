@@ -1,0 +1,14 @@
+get tcp socket
+
+listen on socket
+
+select loop:
+
+    accept new connection
+    get name and choice from that connection
+
+    if i have two names and choices available, game is over
+    determine winner
+    send info to both clients
+    
+    continue
