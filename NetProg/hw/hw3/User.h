@@ -6,6 +6,7 @@ public:
     void setUsername(std::string username);
     void setSockfd(int sockfd);
     void setOperator(bool isOperator);
+    bool isOperator();
 
 private:
     std::string username;

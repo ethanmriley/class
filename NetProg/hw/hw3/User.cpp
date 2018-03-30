@@ -11,3 +11,7 @@ void User::setSockfd(int socket) {
 void User::setOperator(bool isOp) {
     isOperator = isOp;
 }
+
+bool User::isOperator() {
+    return isOperator;
+}
