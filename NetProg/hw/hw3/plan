@@ -1,0 +1,37 @@
+my first prototype goal is a server which can handle concurrent named connections and parse their commands
+
+C++ is gonna be my friend here. dictionaries will let me tie names to socket file descriptors. 
+
+channels will have a dictionary of users with socket file descriptors. 
+
+the common data structure is a user list. there's a server user list and multiple channel user lists. 
+
+since there are channel privileges, there should be user objects. 
+
+
+user object:
+    boolean isOperator
+    string username 
+    int sockfd
+    //dictionary key is the same as the name
+
+channel object:
+    string channelName
+    dictionary of user objects
+
+server object:
+    dictionary of user objects
+    dictionary of channel objects
+
+
+handling concurrent connections is gonna take some doing. 
+
+there's gonna be state stored in these objects. i guess they should stay in one process/thread.
+
+each connection should parse incoming commands in their own process/thread and do logic
+then using ipc/thread communication, call the appropriate methods on and pass data to the state objects 
+
+OR i could do mutexes. 
+
+a multithreaded IRC server can use rw locks to modify state located in shared memory. 
+i think that's much better.  
