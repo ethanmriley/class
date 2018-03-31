@@ -23,10 +23,10 @@ int Channel::removeUser(std::string username) {
 bool Channel::containsUser(std::string username) {
     std::map<std::string, User>::iterator itr;
     itr = channelUsers.find(username);
-    return (itr != channelusers.end());
+    return (itr != channelUsers.end());
 }
 
-std::string listUsers() {
+std::string Channel::listUsers() {
     std::map<std::string, User>::iterator itr;
     std::string list = channelName + " members: ";
 

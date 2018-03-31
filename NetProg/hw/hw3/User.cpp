@@ -12,6 +12,6 @@ void User::setOperator(bool isOp) {
     isOperator = isOp;
 }
 
-bool User::isOperator() {
+bool User::userIsOperator() {
     return isOperator;
 }
