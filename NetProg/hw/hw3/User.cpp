@@ -1,5 +1,7 @@
 #include "User.h"
 
+void User::User() {}
+
 void User::setUsername(std::string user) {
     username = user;
 }
