@@ -31,7 +31,7 @@ std::string Channel::listUsers() {
     std::string list = channelName + " members: ";
 
     for(itr = channelUsers.begin(); itr != channelUsers.end(); itr++) {
-        list += (*itr).getUsername() + " ";
+        list += (itr->second).getUsername() + " ";
     }
 
     return list;

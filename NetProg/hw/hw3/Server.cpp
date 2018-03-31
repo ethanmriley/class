@@ -26,7 +26,7 @@ int Server::removeUser(std::string username) {
     return 0;
 }
 
-bool containsUser(std::string username) {
+bool Server::containsUser(std::string username) {
     std::map<std::string, User>::iterator itr;
     itr = serverUsers.find(username);
     return (itr != serverUsers.end());

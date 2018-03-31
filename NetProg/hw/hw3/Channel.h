@@ -1,5 +1,6 @@
-#include "User.cpp"
 #include <map>
+
+class User;
 
 class Channel {
 public:
