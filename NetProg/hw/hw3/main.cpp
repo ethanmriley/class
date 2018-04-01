@@ -1,6 +1,7 @@
 #include "Server.h"
 #include <assert.h>
 #include <iostream>
+#include <regex>
 
 void userTests() {
     User user;
@@ -81,12 +82,31 @@ void serverTests() {
     assert(serv.listChannels() == "* #announcements\n* #news\n* #trivia\n");
 }
 
-std::string list(std::string channel, Server* serv) {
-    if((*serv).channelExists(channel)) {
-        return (*serv).getChannel(channel)->listUsers();
+bool validChannelName(std::string channelName) {
+    return (std::regex_match(channelName, std::regex("#[a-zA-Z][_0-9a-zA-Z]*")) && channelName.length() <= 20);
+}
+
+bool validUsername(std::string username) {
+    return (std::regex_match(username, std::regex("[a-zA-Z][_0-9a-zA-Z]*")) && username.length() <= 20);
+}
+
+
+std::string list(std::string channelName, Server &serv) {
+    if(serv.channelExists(channelName)) {
+        return serv.getChannel(channelName)->listUsers();
     }
     else {
-        return (*serv).listChannels();
+        return serv.listChannels();
+    }
+}
+
+std::string join(User user, std::string channelName, Server &serv) {
+    if(serv.channelExists(channelName)) {
+        serv.getChannel(channelName)->addUser(user); //username should already be validated
+        return ("Joined channel " + channelName + "\n");
+    } else {
+        //we have to make the channel
+        //validate channelName, create the channel, add our user to channel, add channel to serv
     }
 }
 
