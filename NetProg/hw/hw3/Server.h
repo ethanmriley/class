@@ -19,6 +19,7 @@ public:
     int removeUser(std::string username);
     bool containsUser(std::string username);
     int removeFromAllChannels(std::string username);
+    User* getUser(std::string username);
     
     std::string listChannels();
 

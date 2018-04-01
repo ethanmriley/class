@@ -135,6 +135,17 @@ string part(string username, string channelName, Server &serv) {
     }
 }
 
+//TODO make channels' user dictionaries point to the server's to save memory 
+
+string makeOperator(string password, string username, Server &serv) {
+    if(serv.checkPassword(password)) {
+        serv.getUser(username)->setOperator(true);
+        return "OPERATOR status bestowed.\n";
+    } else {
+        return "Invalid OPERATOR command\n";
+    }
+}
+
 int main(int argc, char** argv) {
     userTests();
 

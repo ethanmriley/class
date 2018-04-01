@@ -54,6 +54,10 @@ int Server::removeFromAllChannels(std::string username) {
     }
 }
 
+User* Server::getUser(std::string username) {
+    return &serverUsers[username];
+}
+
 std::string Server::listChannels() {
     std::string result = "";
 
