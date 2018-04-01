@@ -156,6 +156,28 @@ string kick(string currentUser, string kickedUser, string channelName, Server &s
     return "";
 }
 
+string privmsg(string currentUser, string recipient, string message, Server &serv) {
+    if(message.length() > 512) {
+        return "Message too long.";
+    }
+
+    if(recipient[0] == '#') {
+        if(serv.channelExists(recipient)) {
+            serv.getChannel(recipient)->broadcast(message);
+            return "";
+        } else {
+            return "Channel not found.";
+        }
+    } else {
+        if(serv.containsUser(recipient)) {
+            serv.getUser(recipient)->sendMessage(message);
+        } else {
+            return "User not found.";
+        }
+    }
+}
+
+
 int main(int argc, char** argv) {
     userTests();
 

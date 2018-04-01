@@ -8,6 +8,10 @@ std::string Channel::getChannelName() {
     return channelName;
 }
 
+int Channel::broadcast(std::string message) {
+    return 0;
+}
+
 int Channel::setChannelName(std::string name) {
     //might implement checking for name validity here
     channelName = name;

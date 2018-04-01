@@ -9,6 +9,10 @@ User::User(std::string user) {
     username = user;
 }
 
+int User::sendMessage(std::string message) {
+    return 0;
+}
+
 std::string User::getUsername() {
     return username;
 }

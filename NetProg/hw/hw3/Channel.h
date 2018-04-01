@@ -19,7 +19,7 @@ public:
     std::string listUsers();
     int kickUser(std::string username);
 
-    //TODO gonna wanna add a broadcast function here
+    int broadcast(std::string message);
 
 private:
     std::map<std::string, User> channelUsers;
