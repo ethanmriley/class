@@ -3,6 +3,10 @@
 #include <iostream>
 #include <regex>
 
+using std::cout;
+using std::string;
+using std::map;
+
 void userTests() {
     User user;
 
@@ -82,15 +86,15 @@ void serverTests() {
     assert(serv.listChannels() == "* #announcements\n* #news\n* #trivia\n");
 }
 
-bool validChannelName(std::string channelName) {
+bool validChannelName(string channelName) {
     return (std::regex_match(channelName, std::regex("#[a-zA-Z][_0-9a-zA-Z]*")) && channelName.length() <= 20);
 }
 
-bool validUsername(std::string username) {
+bool validUsername(string username) {
     return (std::regex_match(username, std::regex("[a-zA-Z][_0-9a-zA-Z]*")) && username.length() <= 20);
 }
 
-std::string list(std::string channelName, Server &serv) {
+string list(string channelName, Server &serv) {
     if(serv.channelExists(channelName)) {
         return serv.getChannel(channelName)->listUsers();
     }
@@ -99,7 +103,7 @@ std::string list(std::string channelName, Server &serv) {
     }
 }
 
-std::string join(User user, std::string channelName, Server &serv) {
+string join(User user, string channelName, Server &serv) {
     if(serv.channelExists(channelName)) {
         serv.getChannel(channelName)->addUser(user); //username should already be validated
     } else {
@@ -108,7 +112,7 @@ std::string join(User user, std::string channelName, Server &serv) {
         if(validChannelName(channelName)) {
             Channel newChannel = Channel(channelName);
             newChannel.addUser(user);
-            serv.addChannel(Channel);
+            serv.addChannel(newChannel);
         } else {
             return "Invalid channel name.\n";
         }
@@ -116,6 +120,19 @@ std::string join(User user, std::string channelName, Server &serv) {
     }
     
     return ("Joined channel " + channelName + "\n");
+}
+
+string part(string username, string channelName, Server &serv) {
+    if(channelName != "all") {
+        if(serv.getChannel(channelName)->containsUser(username)) {
+            serv.getChannel(channelName)->removeUser(username);
+            return "Left channel " + channelName + "\n";
+        } else {
+            return "You are not currently in " + channelName + "\n";
+        }
+    } else {
+        serv.removeFromAllChannels(username);
+    }
 }
 
 int main(int argc, char** argv) {

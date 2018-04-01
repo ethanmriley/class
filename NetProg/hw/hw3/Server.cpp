@@ -45,6 +45,15 @@ bool Server::containsUser(std::string username) {
     return (itr != serverUsers.end());
 }
 
+int Server::removeFromAllChannels(std::string username) {
+    std::map<std::string, Channel>::iterator itr;
+    for(itr = serverChannels.begin(); itr != serverChannels.end(); itr++) {
+        if((itr->second).containsUser(username)) {
+            (itr->second).removeUser(username);
+        }
+    }
+}
+
 std::string Server::listChannels() {
     std::string result = "";
 

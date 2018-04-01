@@ -18,8 +18,11 @@ public:
     int addUser(User newUser);
     int removeUser(std::string username);
     bool containsUser(std::string username);
+    int removeFromAllChannels(std::string username);
     
     std::string listChannels();
+
+    //gonna wanna add a u2u messaging function here
 
 private:
     std::string password;

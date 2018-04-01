@@ -12,9 +12,10 @@ public:
     std::string getChannelName();
     int setChannelName(std::string name);
     int addUser(User addedUser);
-    int removeUser(std::string username);
+    int removeUser(std::string username); //TODO use broadcast function here to let the channel know
     bool containsUser(std::string username);
     std::string listUsers();
+    //TODO gonna wanna add a broadcast function here
 
 private:
     std::map<std::string, User> channelUsers;
