@@ -1,6 +1,9 @@
 #include <map>
+#include <string>
+#include "User.h"
 
-class User;
+#ifndef _CHANNEL_
+#define _CHANNEL_
 
 class Channel {
 public:
@@ -16,3 +19,5 @@ private:
     std::map<std::string, User> channelUsers;
     std::string channelName;
 };
+
+#endif

@@ -1,6 +1,12 @@
 #include "User.h"
 
-void User::User() {}
+User::User() {
+    isOperator = false;
+}
+
+std::string User::getUsername() {
+    return username;
+}
 
 void User::setUsername(std::string user) {
     username = user;

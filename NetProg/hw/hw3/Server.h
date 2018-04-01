@@ -1,8 +1,7 @@
-class Channel;
-class User;
-
 #include <map>
 #include <string>
+#include "User.h"
+#include "Channel.h"
 
 class Server {
 public:
