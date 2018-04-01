@@ -90,7 +90,6 @@ bool validUsername(std::string username) {
     return (std::regex_match(username, std::regex("[a-zA-Z][_0-9a-zA-Z]*")) && username.length() <= 20);
 }
 
-
 std::string list(std::string channelName, Server &serv) {
     if(serv.channelExists(channelName)) {
         return serv.getChannel(channelName)->listUsers();
@@ -103,11 +102,20 @@ std::string list(std::string channelName, Server &serv) {
 std::string join(User user, std::string channelName, Server &serv) {
     if(serv.channelExists(channelName)) {
         serv.getChannel(channelName)->addUser(user); //username should already be validated
-        return ("Joined channel " + channelName + "\n");
     } else {
         //we have to make the channel
         //validate channelName, create the channel, add our user to channel, add channel to serv
+        if(validChannelName(channelName)) {
+            Channel newChannel = Channel(channelName);
+            newChannel.addUser(user);
+            serv.addChannel(Channel);
+        } else {
+            return "Invalid channel name.\n";
+        }
+
     }
+    
+    return ("Joined channel " + channelName + "\n");
 }
 
 int main(int argc, char** argv) {
