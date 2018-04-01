@@ -40,3 +40,9 @@ std::string Channel::listUsers() {
 
     return list;
 }
+
+int Channel::kickUser(std::string username) {
+    channelUsers.erase(username);
+}
+
+//TODO add channel broadcast to all of these

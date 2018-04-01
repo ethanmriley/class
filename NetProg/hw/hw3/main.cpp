@@ -105,7 +105,7 @@ string list(string channelName, Server &serv) {
 
 string join(User user, string channelName, Server &serv) {
     if(serv.channelExists(channelName)) {
-        serv.getChannel(channelName)->addUser(user); //username should already be validated
+        serv.getChannel(channelName)->addUser(user); //currentUser should already be validated
     } else {
         //we have to make the channel
         //validate channelName, create the channel, add our user to channel, add channel to serv
@@ -122,28 +122,38 @@ string join(User user, string channelName, Server &serv) {
     return ("Joined channel " + channelName + "\n");
 }
 
-string part(string username, string channelName, Server &serv) {
+string part(string currentUser, string channelName, Server &serv) {
     if(channelName != "all") {
-        if(serv.getChannel(channelName)->containsUser(username)) {
-            serv.getChannel(channelName)->removeUser(username);
+        if(serv.getChannel(channelName)->containsUser(currentUser)) {
+            serv.getChannel(channelName)->removeUser(currentUser);
             return "Left channel " + channelName + "\n";
         } else {
             return "You are not currently in " + channelName + "\n";
         }
     } else {
-        serv.removeFromAllChannels(username);
+        serv.removeFromAllChannels(currentUser);
     }
 }
 
 //TODO make channels' user dictionaries point to the server's to save memory 
 
-string makeOperator(string password, string username, Server &serv) {
+string makeOperator(string password, string currentUser, Server &serv) {
     if(serv.checkPassword(password)) {
-        serv.getUser(username)->setOperator(true);
+        serv.getUser(currentUser)->setOperator(true);
         return "OPERATOR status bestowed.\n";
     } else {
         return "Invalid OPERATOR command\n";
     }
+}
+
+string kick(string currentUser, string kickedUser, string channelName, Server &serv) {
+    if(serv.getUser(currentUser)->userIsOperator()) {
+        if(serv.getChannel(channelName)->containsUser(kickedUser)) {
+            serv.getChannel(channelName)->kickUser(kickedUser);
+        }
+    }
+    
+    return "";
 }
 
 int main(int argc, char** argv) {
