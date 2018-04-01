@@ -177,6 +177,10 @@ string privmsg(string currentUser, string recipient, string message, Server &ser
     }
 }
 
+string quit(string currentUser) {
+    serv.removeFromAllChannels(currentUser);
+    serv.getUser(currentUser)->disconnect();
+}
 
 int main(int argc, char** argv) {
     userTests();

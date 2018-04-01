@@ -8,6 +8,10 @@ public:
     User();
     User(std::string user_name);
 
+    int sendMessage(std::string message);
+
+    int disconnect();
+
     void setUsername(std::string username);
     std::string getUsername();
     
@@ -16,7 +20,6 @@ public:
     void setOperator(bool isOperator);
     bool userIsOperator();
 
-    int sendMessage(std::string message);
 
 private:
     std::string username;

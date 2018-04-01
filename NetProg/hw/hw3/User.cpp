@@ -9,6 +9,10 @@ User::User(std::string user) {
     username = user;
 }
 
+int User::disconnect() {
+    return 0;
+}
+
 int User::sendMessage(std::string message) {
     return 0;
 }
