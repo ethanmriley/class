@@ -20,9 +20,13 @@ int Server::addChannel(Channel newChannel) {
     return 0;
 }
 
-int Server::removeChannel(std::string channel_name) {
-    serverChannels.erase(channel_name);
+int Server::removeChannel(std::string channelName) {
+    serverChannels.erase(channelName);
     return 0;
+}
+
+Channel* Server::getChannel(std::string channelName) {
+    return &serverChannels[channelName];
 }
 
 int Server::addUser(User newUser) {

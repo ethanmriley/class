@@ -81,6 +81,15 @@ void serverTests() {
     assert(serv.listChannels() == "* #announcements\n* #news\n* #trivia\n");
 }
 
+std::string list(std::string channel, Server* serv) {
+    if((*serv).channelExists(channel)) {
+        return (*serv).getChannel(channel)->listUsers();
+    }
+    else {
+        return (*serv).listChannels();
+    }
+}
+
 int main(int argc, char** argv) {
     userTests();
 
