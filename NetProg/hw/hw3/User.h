@@ -6,6 +6,7 @@
 class User{
 public:
     User();
+    User(std::string user_name);
     void setUsername(std::string username);
     void setSockfd(int sockfd);
     void setOperator(bool isOperator);

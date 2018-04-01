@@ -4,6 +4,11 @@ User::User() {
     isOperator = false;
 }
 
+User::User(std::string user) {
+    isOperator = false;
+    username = user;
+}
+
 std::string User::getUsername() {
     return username;
 }

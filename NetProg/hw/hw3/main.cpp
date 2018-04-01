@@ -1,5 +1,6 @@
 #include "Server.h"
 #include <assert.h>
+#include <iostream>
 
 void userTests() {
     User user;
@@ -17,7 +18,36 @@ void userTests() {
     assert(user.userIsOperator() == true);
 }
 
-void channelTests() {}
+void channelTests() {
+    Channel channel;
+
+    assert(channel.getChannelName() == "");
+
+    channel.setChannelName("#news");
+
+    assert(channel.getChannelName() == "#news");
+
+    assert(channel.containsUser("Maria") == false);
+
+    User Maria = User("Maria");
+
+    channel.addUser(Maria);
+
+    assert(channel.containsUser("Maria") == true);
+
+    User pwnz0r = User("pwnz0r");
+    channel.addUser(pwnz0r);
+    User john = User("john");
+    channel.addUser(john);
+
+    assert(channel.listUsers() == "#news members: Maria john pwnz0r ");
+
+    assert(channel.containsUser("pwnz0r") == true);
+
+    channel.removeUser("pwnz0r");
+
+    assert(channel.containsUser("pwnz0r") == false);
+}
 
 void serverTests() {}
 
