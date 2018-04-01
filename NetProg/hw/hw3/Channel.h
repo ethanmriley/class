@@ -8,6 +8,7 @@
 class Channel {
 public:
     Channel(){}
+    Channel(std::string name);
     std::string getChannelName();
     int setChannelName(std::string name);
     int addUser(User addedUser);

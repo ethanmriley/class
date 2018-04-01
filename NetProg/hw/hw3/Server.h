@@ -6,12 +6,19 @@
 class Server {
 public:
     Server(){};
-    bool channelExists(std::string channelName);
+
     int setPassword(std::string pass);
+    bool checkPassword(std::string pass);
+    
     int addChannel(Channel newChannel);
+    int removeChannel(std::string channelName);
+    bool channelExists(std::string channelName);
+    
     int addUser(User newUser);
     int removeUser(std::string username);
     bool containsUser(std::string username);
+    
+    std::string listChannels();
 
 private:
     std::string password;

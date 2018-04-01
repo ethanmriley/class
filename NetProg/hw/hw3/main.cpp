@@ -49,7 +49,37 @@ void channelTests() {
     assert(channel.containsUser("pwnz0r") == false);
 }
 
-void serverTests() {}
+void serverTests() {
+    Server serv;
+
+    serv.setPassword("secret");
+
+    assert(serv.checkPassword("password") == false);
+
+    assert(serv.checkPassword("secret") == true);
+
+    serv.addChannel(Channel("#news"));
+
+    assert(serv.channelExists("#news") == true);
+
+    serv.removeChannel("#news");
+
+    assert(serv.channelExists("#news") == false);
+
+    serv.addUser(User("Maria"));
+
+    assert(serv.containsUser("Maria") == true);
+
+    serv.removeUser("Maria");
+
+    assert(serv.containsUser("Maria") == false);
+
+    serv.addChannel(Channel("#news"));
+    serv.addChannel(Channel("#trivia"));
+    serv.addChannel(Channel("#announcements"));
+
+    assert(serv.listChannels() == "* #announcements\n* #news\n* #trivia\n");
+}
 
 int main(int argc, char** argv) {
     userTests();

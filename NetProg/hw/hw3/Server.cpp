@@ -11,8 +11,17 @@ int Server::setPassword(std::string pass) {
     return 0;
 }
 
+bool Server::checkPassword(std::string pass) {
+    return pass == password;
+}
+
 int Server::addChannel(Channel newChannel) {
     serverChannels[newChannel.getChannelName()] = newChannel;
+    return 0;
+}
+
+int Server::removeChannel(std::string channel_name) {
+    serverChannels.erase(channel_name);
     return 0;
 }
 
@@ -31,3 +40,14 @@ bool Server::containsUser(std::string username) {
     itr = serverUsers.find(username);
     return (itr != serverUsers.end());
 }
+
+std::string Server::listChannels() {
+    std::string result = "";
+
+    std::map<std::string, Channel>::iterator itr;
+    for(itr = serverChannels.begin(); itr != serverChannels.end(); itr++) {
+        result += "* " + (itr->second).getChannelName() + "\n";
+    }
+
+    return result;
+}   

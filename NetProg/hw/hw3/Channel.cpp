@@ -1,5 +1,9 @@
 #include "Channel.h"
 
+Channel::Channel(std::string name) {
+    channelName = name;
+}
+
 std::string Channel::getChannelName() {
     return channelName;
 }
