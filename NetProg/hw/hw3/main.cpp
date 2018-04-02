@@ -164,10 +164,11 @@ string KICK(string currentUser, string kickedUser, string channelName, Server &s
     if(serv.getUser(currentUser)->userIsOperator()) {
         if(serv.getChannel(channelName)->containsUser(kickedUser)) {
             serv.getChannel(channelName)->kickUser(kickedUser);
+            return "";
         }
+    } else {
+        return "You're not op.\n";
     }
-    
-    return "";
 }
 
 string PRIVMSG(string currentUser, string recipient, string message, Server &serv) {
@@ -255,6 +256,7 @@ void PARTTests() {
 
     assert(PART("Maria", "#news", serv) == "");
     assert(serv.getChannel("#news")->containsUser("Maria") == false);
+    assert(serv.getChannel("#trivia")->containsUser("Maria") == true);
 
     assert(PART("Maria", "#support", serv) == "You are not currently in #support\n");
 
@@ -282,6 +284,27 @@ void OPERATORTests() {
     assert(serv.getUser("pwnZ0r")->userIsOperator() == false);
 }
 
+void KICKTests() {
+    Server serv;
+
+    serv.setPassword("secret");
+    serv.addUser(User("Maria"));
+    serv.getUser("Maria")->setOperator(true);
+    
+    serv.addUser(User("pwnZ0r"));
+
+    serv.addChannel(Channel("#news"));
+
+    serv.getChannel("#news")->addUser(User("pwnZ0r"));
+    serv.getChannel("#news")->addUser(User("Maria"));
+
+    assert(KICK("Maria", "pwnZ0r", "#news", serv) == "");
+    assert(serv.getChannel("#news")->containsUser("pwnZ0r") == false);
+
+    assert(KICK("pwnZ0r", "Maria", "#news", serv) == "You're not op.\n");
+    assert(serv.getChannel("#news")->containsUser("Maria") == true);
+}
+
 int main(int argc, char** argv) {
     userTests();
 
@@ -299,7 +322,7 @@ int main(int argc, char** argv) {
 
     OPERATORTests();
 
-    //KICKTests();
+    KICKTests();
 
     //PRIVMSGTests();
 
