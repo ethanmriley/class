@@ -305,6 +305,22 @@ void KICKTests() {
     assert(serv.getChannel("#news")->containsUser("Maria") == true);
 }
 
+void PRIVMSGTests() {
+    Server serv;
+
+    serv.addChannel(Channel("#news"));
+    serv.addUser(User("Maria"));
+    serv.addUser(User("pwnZ0r"));
+
+    assert(PRIVMSG("Maria", "pwnZ0r", "hey\n", serv) == "");
+
+    assert(PRIVMSG("Maria", "ethan", "hey\n", serv) == "User not found.\n");
+    
+    assert(PRIVMSG("Maria", "#news", "hey all\n", serv) == "");
+    
+    assert(PRIVMSG("Maria", "#trivia", "hey all\n", serv) == "Channel not found.\n");
+}
+
 int main(int argc, char** argv) {
     userTests();
 
