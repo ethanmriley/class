@@ -151,12 +151,12 @@ string PART(string currentUser, string channelName, Server &serv) {
 
 //TODO make channels' user dictionaries point to the server's to save memory 
 
-string OPERATOR(string password, string currentUser, Server &serv) {
+string OPERATOR(string currentUser, string password, Server &serv) {
     if(serv.checkPassword(password)) {
         serv.getUser(currentUser)->setOperator(true);
         return "OPERATOR status bestowed.\n";
     } else {
-        return "Invalid OPERATOR command\n";
+        return "Invalid OPERATOR command.\n";
     }
 }
 
@@ -264,6 +264,24 @@ void PARTTests() {
     assert(serv.getChannel("#trivia")->containsUser("Maria") == false);
 }
 
+void OPERATORTests() {
+    Server serv; 
+
+    serv.setPassword("secret");
+    serv.addUser(User("Maria"));
+    assert(serv.getUser("Maria")->userIsOperator() == false);
+
+    assert(OPERATOR("Maria", "secret", serv) == "OPERATOR status bestowed.\n");
+    assert(serv.getUser("Maria")->userIsOperator() == true);
+
+    assert(OPERATOR("Maria", "password", serv) == "Invalid OPERATOR command.\n");
+    assert(serv.getUser("Maria")->userIsOperator() == true); //this is on purpose
+
+    serv.addUser(User("pwnZ0r"));
+    assert(OPERATOR("pwnZ0r", "password", serv) == "Invalid OPERATOR command.\n");
+    assert(serv.getUser("pwnZ0r")->userIsOperator() == false);
+}
+
 int main(int argc, char** argv) {
     userTests();
 
@@ -279,7 +297,7 @@ int main(int argc, char** argv) {
 
     PARTTests();
 
-    //OPERATORTests();
+    OPERATORTests();
 
     //KICKTests();
 
