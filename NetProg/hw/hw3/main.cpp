@@ -45,7 +45,7 @@ void channelTests() {
     User john = User("john");
     channel.addUser(john);
 
-    assert(channel.listUsers() == "#news members: Maria john pwnz0r ");
+    assert(channel.listUsers() == "#news members: Maria john pwnz0r \n");
 
     assert(channel.containsUser("pwnz0r") == true);
 
@@ -208,6 +208,21 @@ void USERTests() {
     assert(serv.containsUser("ethan riley") == false);
 }
 
+void LISTTests() {
+    Server serv;
+
+    serv.addChannel(Channel("#news"));
+    serv.addChannel(Channel("#trivia"));
+    serv.addChannel(Channel("#support"));
+
+    serv.getChannel("#news")->addUser(User("Maria"));
+    serv.getChannel("#news")->addUser(User("pwnZ0r"));
+    serv.getChannel("#news")->addUser(User("ethan"));
+
+    assert(LIST("", serv) == "* #news\n* #support\n* #trivia\n"); //should document this
+    assert(LIST("#news", serv) == "#news members: Maria ethan pwnZ0r \n");
+}
+
 int main(int argc, char** argv) {
     userTests();
 
@@ -217,7 +232,7 @@ int main(int argc, char** argv) {
 
     USERTests();
 
-    //LISTTests();
+    LISTTests();
 
     //JOINTests();
 

@@ -42,6 +42,8 @@ std::string Channel::listUsers() {
         list += (itr->second).getUsername() + " ";
     }
 
+    list += '\n';
+
     return list;
 }
 
