@@ -51,3 +51,15 @@ int Accept(int sockfd, struct sockaddr *addr, unsigned int* addrlen) {
 
     return client_sock;
 }
+
+int Recv(int sockfd, void *buf, unsigned int len, int flags) {
+    int bytes_recv;
+
+    bytes_recv = recv(sockfd, buf, len, flags);
+    if(bytes_recv == -1) {
+        perror("recv failed");
+        return -1;
+    }
+
+    return bytes_recv;
+}

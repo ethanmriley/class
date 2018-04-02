@@ -15,11 +15,11 @@ int new_connection(int servfd, Server& serv) {
     int err;
     int bytes_recv;
     int client_sock;
-    char msg[] = "Hi!\n";
+    char request[1024] = {0};
 
     client_sock = Accept(servfd, (struct sockaddr*)&client, &cliaddr_len);
-
-    Send(client_sock, msg, sizeof(msg), 0);
+    
+    bytes_recv = Recv(client_sock, request, sizeof(request), 0);
 
     return 0;
 }
