@@ -8,6 +8,19 @@
 #include <iostream>
 
 using std::cout;
+using std::string;
+
+std::string parse(char* request, Server &serv) {
+    char *token;
+
+    token = strtok(request, " ");
+    while(token) {
+        cout << token << '\n';
+        token = strtok(NULL, " ");
+    }
+
+    return "";
+}
 
 int new_connection(int servfd, Server& serv) {
     struct sockaddr_in client;
@@ -16,14 +29,18 @@ int new_connection(int servfd, Server& serv) {
     int bytes_recv;
     int client_sock;
     char request[1024] = {0};
+    string response;
 
-    client_sock = Accept(servfd, (struct sockaddr*)&client, &cliaddr_len);
+    client_sock = Accept(servfd, (struct sockaddr*) &client, &cliaddr_len);
 
     while(1) {
-    
         bytes_recv = Recv(client_sock, request, sizeof(request), 0);
+        if(bytes_recv == 0) {
+            break;
+        }
 
-        Send(client_sock, request, bytes_recv, 0);
+        response = parse(request, serv);
+        Send(client_sock, response.c_str(), response.length(), 0);
     }
 
     return 0;
