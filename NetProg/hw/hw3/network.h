@@ -11,3 +11,5 @@ struct server_socket {
 };
 
 struct server_socket get_socket();
+
+int Send(int sockfd, const void *buf, unsigned int len, int flags);

@@ -27,3 +27,15 @@ struct server_socket get_socket() {
 
     return serv;
 }
+
+int Send(int sockfd, const void *buf, unsigned int len, int flags) {
+    int err;
+
+    err = send(sockfd, buf, len, flags);
+    if(err == -1) {
+        perror("send failed");
+        return -1;
+    }
+    
+    return err;
+}

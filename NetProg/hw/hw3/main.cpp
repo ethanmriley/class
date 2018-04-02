@@ -23,10 +23,7 @@ int new_connection(int servfd, Server& serv) {
         return 1;
         }
 
-    err = send(client_sock, msg, sizeof(msg), 0);
-    if(err == -1) {
-        perror("send failed");
-    }
+    Send(client_sock, msg, sizeof(msg), 0);
 
     return 0;
 }
