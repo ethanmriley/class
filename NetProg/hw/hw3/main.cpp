@@ -132,15 +132,20 @@ string JOIN(string currentUser, string channelName, Server &serv) {
 }
 
 string PART(string currentUser, string channelName, Server &serv) {
-    if(channelName != "all") {
-        if(serv.getChannel(channelName)->containsUser(currentUser)) {
-            serv.getChannel(channelName)->removeUser(currentUser);
-            return "Left channel " + channelName + "\n";
+    if(channelName.length() > 0) {
+        if(serv.containsChannel(channelName)) {
+            if(serv.getChannel(channelName)->containsUser(currentUser)) {
+                serv.getChannel(channelName)->removeUser(currentUser);
+                return "";
+            } else {
+                return "You are not currently in " + channelName + "\n";
+            }
         } else {
-            return "You are not currently in " + channelName + "\n";
+            return "Channel not found.\n";
         }
-    } else {
+      } else {
         serv.removeFromAllChannels(currentUser);
+        return "";
     }
 }
 
@@ -238,6 +243,27 @@ void JOINTests() {
     assert(serv.containsChannel("new channel") == false);
 }
 
+void PARTTests() {
+    Server serv;
+    
+    serv.addChannel(Channel("#news"));
+    serv.addChannel(Channel("#trivia"));
+    serv.addChannel(Channel("#support"));
+
+    serv.getChannel("#news")->addUser(User("Maria"));
+    serv.getChannel("#trivia")->addUser(User("Maria"));
+
+    assert(PART("Maria", "#news", serv) == "");
+    assert(serv.getChannel("#news")->containsUser("Maria") == false);
+
+    assert(PART("Maria", "#support", serv) == "You are not currently in #support\n");
+
+    serv.getChannel("#news")->addUser(User("Maria"));
+    assert(PART("Maria", "", serv) == "");
+    assert(serv.getChannel("#news")->containsUser("Maria") == false);
+    assert(serv.getChannel("#trivia")->containsUser("Maria") == false);
+}
+
 int main(int argc, char** argv) {
     userTests();
 
@@ -251,7 +277,7 @@ int main(int argc, char** argv) {
 
     JOINTests();
 
-    //PARTTests();
+    PARTTests();
 
     //OPERATORTests();
 
