@@ -9,6 +9,10 @@ std::string Channel::getChannelName() {
 }
 
 int Channel::broadcast(std::string message) {
+    std::map<std::string, User>::iterator itr;
+    for(itr = channelUsers.begin(); itr != channelUsers.end(); itr++) {
+        (itr->second).sendMessage(message);
+    }
     return 0;
 }
 
