@@ -17,11 +17,7 @@ int new_connection(int servfd, Server& serv) {
     int client_sock;
     char msg[] = "Hi!\n";
 
-    client_sock = accept(servfd, (struct sockaddr*)&client, &cliaddr_len);
-    if (client_sock == -1) {
-        perror("accept failed");
-        return 1;
-        }
+    client_sock = Accept(servfd, (struct sockaddr*)&client, &cliaddr_len);
 
     Send(client_sock, msg, sizeof(msg), 0);
 
