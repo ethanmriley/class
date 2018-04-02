@@ -196,6 +196,7 @@ string PRIVMSG(string currentUser, string recipient, string message, Server &ser
 string QUIT(string currentUser, Server &serv) {
     serv.removeFromAllChannels(currentUser);
     serv.getUser(currentUser)->disconnect();
+    return "";
 }
 
 void USERTests() {
@@ -322,6 +323,20 @@ void PRIVMSGTests() {
     assert(PRIVMSG("Maria", "#trivia", "hey all\n", serv) == "Channel not found.\n");
 }
 
+void QUITTests() {
+    Server serv;
+    
+    serv.addChannel(Channel("#news"));
+    serv.addChannel(Channel("#trivia"));
+
+    serv.getChannel("#news")->addUser(User("Maria"));
+    serv.getChannel("#trivia")->addUser(User("Maria"));
+
+    assert(QUIT("Maria", serv) == "");
+    assert(serv.getChannel("#news")->containsUser("Maria") == false);
+    assert(serv.getChannel("#trivia")->containsUser("Maria") == false);
+}
+
 int main(int argc, char** argv) {
     userTests();
 
@@ -343,7 +358,7 @@ int main(int argc, char** argv) {
 
     PRIVMSGTests();
 
-    //QUITTests();
+    QUITTests();
 
     return 0;
 }
