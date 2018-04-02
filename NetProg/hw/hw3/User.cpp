@@ -16,6 +16,8 @@ int User::disconnect() {
 }
 
 int User::sendMessage(std::string message) {
+    int result;
+    result = send(sockfd, message.c_str(), message.length(), 0);
     return 0;
 }
 
