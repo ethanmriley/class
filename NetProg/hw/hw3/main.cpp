@@ -173,7 +173,7 @@ string KICK(string currentUser, string kickedUser, string channelName, Server &s
 
 string PRIVMSG(string currentUser, string recipient, string message, Server &serv) {
     if(message.length() > 512) {
-        return "Message too long.";
+        return "Message too long.\n";
     }
 
     if(recipient[0] == '#') {
@@ -181,13 +181,14 @@ string PRIVMSG(string currentUser, string recipient, string message, Server &ser
             serv.getChannel(recipient)->broadcast(message);
             return "";
         } else {
-            return "Channel not found.";
+            return "Channel not found.\n";
         }
     } else {
         if(serv.containsUser(recipient)) {
             serv.getUser(recipient)->sendMessage(message);
+            return "";
         } else {
-            return "User not found.";
+            return "User not found.\n";
         }
     }
 }
@@ -340,7 +341,7 @@ int main(int argc, char** argv) {
 
     KICKTests();
 
-    //PRIVMSGTests();
+    PRIVMSGTests();
 
     //QUITTests();
 
