@@ -3,6 +3,7 @@
 #include "Server.h"
 #include "commands.h"
 #include "test.h"
+#include "network.h"
 
 int main(int argc, char** argv) {
     return 0;
