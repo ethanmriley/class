@@ -94,7 +94,7 @@ bool validUsername(string username) {
     return (std::regex_match(username, std::regex("[a-zA-Z][_0-9a-zA-Z]*")) && username.length() <= 20);
 }
 
-string list(string channelName, Server &serv) {
+string LIST(string channelName, Server &serv) {
     if(serv.channelExists(channelName)) {
         return serv.getChannel(channelName)->listUsers();
     }
@@ -103,7 +103,7 @@ string list(string channelName, Server &serv) {
     }
 }
 
-string join(User user, string channelName, Server &serv) {
+string JOIN(User user, string channelName, Server &serv) {
     if(serv.channelExists(channelName)) {
         serv.getChannel(channelName)->addUser(user); //currentUser should already be validated
     } else {
@@ -122,7 +122,7 @@ string join(User user, string channelName, Server &serv) {
     return ("Joined channel " + channelName + "\n");
 }
 
-string part(string currentUser, string channelName, Server &serv) {
+string PART(string currentUser, string channelName, Server &serv) {
     if(channelName != "all") {
         if(serv.getChannel(channelName)->containsUser(currentUser)) {
             serv.getChannel(channelName)->removeUser(currentUser);
@@ -137,7 +137,7 @@ string part(string currentUser, string channelName, Server &serv) {
 
 //TODO make channels' user dictionaries point to the server's to save memory 
 
-string makeOperator(string password, string currentUser, Server &serv) {
+string OPERATOR(string password, string currentUser, Server &serv) {
     if(serv.checkPassword(password)) {
         serv.getUser(currentUser)->setOperator(true);
         return "OPERATOR status bestowed.\n";
@@ -146,7 +146,7 @@ string makeOperator(string password, string currentUser, Server &serv) {
     }
 }
 
-string kick(string currentUser, string kickedUser, string channelName, Server &serv) {
+string KICK(string currentUser, string kickedUser, string channelName, Server &serv) {
     if(serv.getUser(currentUser)->userIsOperator()) {
         if(serv.getChannel(channelName)->containsUser(kickedUser)) {
             serv.getChannel(channelName)->kickUser(kickedUser);
@@ -156,7 +156,7 @@ string kick(string currentUser, string kickedUser, string channelName, Server &s
     return "";
 }
 
-string privmsg(string currentUser, string recipient, string message, Server &serv) {
+string PRIVMSG(string currentUser, string recipient, string message, Server &serv) {
     if(message.length() > 512) {
         return "Message too long.";
     }
@@ -177,7 +177,7 @@ string privmsg(string currentUser, string recipient, string message, Server &ser
     }
 }
 
-string quit(string currentUser) {
+string QUIT(string currentUser, Server &serv) {
     serv.removeFromAllChannels(currentUser);
     serv.getUser(currentUser)->disconnect();
 }
