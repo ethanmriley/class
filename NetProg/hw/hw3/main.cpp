@@ -18,8 +18,13 @@ int new_connection(int servfd, Server& serv) {
     char request[1024] = {0};
 
     client_sock = Accept(servfd, (struct sockaddr*)&client, &cliaddr_len);
+
+    while(1) {
     
-    bytes_recv = Recv(client_sock, request, sizeof(request), 0);
+        bytes_recv = Recv(client_sock, request, sizeof(request), 0);
+
+        Send(client_sock, request, bytes_recv, 0);
+    }
 
     return 0;
 }
