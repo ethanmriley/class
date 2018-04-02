@@ -1,4 +1,6 @@
 #include "User.h"
+#include <arpa/inet.h>
+#include <sys/socket.h>
 
 User::User() {
     isOperator = false;

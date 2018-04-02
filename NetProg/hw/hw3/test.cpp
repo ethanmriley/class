@@ -2,6 +2,7 @@
 #include "commands.h"
 #include <assert.h>
 #include <regex>
+#include "test.h"
 
 using std::string;
 using std::map;
@@ -222,30 +223,4 @@ void QUITTests() {
     assert(QUIT("Maria", serv) == "");
     assert(serv.getChannel("#news")->containsUser("Maria") == false);
     assert(serv.getChannel("#trivia")->containsUser("Maria") == false);
-}
-
-int main(int argc, char** argv) {
-    userTests();
-
-    channelTests();
-
-    serverTests();
-
-    USERTests();
-
-    LISTTests();
-
-    JOINTests();
-
-    PARTTests();
-
-    OPERATORTests();
-
-    KICKTests();
-
-    PRIVMSGTests();
-
-    QUITTests();
-
-    return 0;
 }
