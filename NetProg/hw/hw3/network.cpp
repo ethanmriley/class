@@ -39,3 +39,15 @@ int Send(int sockfd, const void *buf, unsigned int len, int flags) {
     
     return err;
 }
+
+int Accept(int sockfd, struct sockaddr *addr, unsigned int* addrlen) {
+    int client_sock;
+
+    client_sock = accept(sockfd, addr, addrlen);
+    if (client_sock == -1) {
+        perror("accept failed");
+        return 1;
+    }
+
+    return client_sock;
+}
