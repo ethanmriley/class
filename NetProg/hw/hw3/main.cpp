@@ -234,7 +234,7 @@ void JOINTests() {
     assert(serv.containsChannel("#theory") == true);
     assert(serv.getChannel("#theory")->containsUser("Maria") == true);
 
-    assert(JOIN("Maria", "new channel", serv) == "Invalid channel name/\n");
+    assert(JOIN("Maria", "new channel", serv) == "Invalid channel name.\n");
     assert(serv.containsChannel("new channel") == false);
 }
 
@@ -249,7 +249,7 @@ int main(int argc, char** argv) {
 
     LISTTests();
 
-    //JOINTests();
+    JOINTests();
 
     //PARTTests();
 
