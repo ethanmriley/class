@@ -1,6 +1,6 @@
 #include "Server.h"
 
-bool Server::channelExists(std::string channelName) {
+bool Server::containsChannel(std::string channelName) {
     std::map<std::string, Channel>::iterator itr;
     itr = serverChannels.find(channelName);
     return (itr != serverChannels.end());

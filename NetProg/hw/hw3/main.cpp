@@ -65,11 +65,11 @@ void serverTests() {
 
     serv.addChannel(Channel("#news"));
 
-    assert(serv.channelExists("#news") == true);
+    assert(serv.containsChannel("#news") == true);
 
     serv.removeChannel("#news");
 
-    assert(serv.channelExists("#news") == false);
+    assert(serv.containsChannel("#news") == false);
 
     serv.addUser(User("Maria"));
 
@@ -105,7 +105,7 @@ string USER(string username, Server &serv) {
 
 
 string LIST(string channelName, Server &serv) {
-    if(serv.channelExists(channelName)) {
+    if(serv.containsChannel(channelName)) {
         return serv.getChannel(channelName)->listUsers();
     }
     else {
@@ -113,20 +113,19 @@ string LIST(string channelName, Server &serv) {
     }
 }
 
-string JOIN(User user, string channelName, Server &serv) {
-    if(serv.channelExists(channelName)) {
-        serv.getChannel(channelName)->addUser(user); //currentUser should already be validated
+string JOIN(string currentUser, string channelName, Server &serv) {
+    if(serv.containsChannel(channelName)) {
+        serv.getChannel(channelName)->addUser(User(currentUser));
     } else {
         //we have to make the channel
         //validate channelName, create the channel, add our user to channel, add channel to serv
         if(validChannelName(channelName)) {
             Channel newChannel = Channel(channelName);
-            newChannel.addUser(user);
+            newChannel.addUser(User(currentUser));
             serv.addChannel(newChannel);
         } else {
             return "Invalid channel name.\n";
         }
-
     }
     
     return ("Joined channel " + channelName + "\n");
@@ -172,7 +171,7 @@ string PRIVMSG(string currentUser, string recipient, string message, Server &ser
     }
 
     if(recipient[0] == '#') {
-        if(serv.channelExists(recipient)) {
+        if(serv.containsChannel(recipient)) {
             serv.getChannel(recipient)->broadcast(message);
             return "";
         } else {
@@ -221,6 +220,22 @@ void LISTTests() {
 
     assert(LIST("", serv) == "* #news\n* #support\n* #trivia\n"); //should document this
     assert(LIST("#news", serv) == "#news members: Maria ethan pwnZ0r \n");
+}
+
+void JOINTests() {
+    Server serv;
+
+    serv.addChannel(Channel("#news"));
+    serv.addUser(User("Maria"));
+
+    assert(JOIN("Maria", "#news", serv) == "Joined channel #news\n");
+
+    assert(JOIN("Maria", "#theory", serv) == "Joined channel #theory\n");
+    assert(serv.containsChannel("#theory") == true);
+    assert(serv.getChannel("#theory")->containsUser("Maria") == true);
+
+    assert(JOIN("Maria", "new channel", serv) == "Invalid channel name/\n");
+    assert(serv.containsChannel("new channel") == false);
 }
 
 int main(int argc, char** argv) {

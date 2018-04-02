@@ -12,7 +12,7 @@ public:
     
     int addChannel(Channel newChannel);
     int removeChannel(std::string channelName);
-    bool channelExists(std::string channelName);
+    bool containsChannel(std::string channelName);
     Channel* getChannel(std::string channelName);
     
     int addUser(User newUser);
