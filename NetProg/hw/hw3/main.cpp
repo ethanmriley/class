@@ -192,11 +192,44 @@ string QUIT(string currentUser, Server &serv) {
     serv.getUser(currentUser)->disconnect();
 }
 
+void USERTests() {
+    Server serv;
+
+    assert(USER("Maria", serv) == "Welcome, Maria\n");
+
+    assert(serv.containsUser("Maria") == true);
+
+    assert(USER("pwnZ0r", serv) == "Welcome, pwnZ0r\n");
+
+    assert(serv.containsUser("pwnZ0r") == true);
+
+    assert(USER("ethan riley", serv) == "Invalid username.\n");
+
+    assert(serv.containsUser("ethan riley") == false);
+}
+
 int main(int argc, char** argv) {
     userTests();
 
     channelTests();
 
     serverTests();
+
+    USERTests();
+
+    //LISTTests();
+
+    //JOINTests();
+
+    //PARTTests();
+
+    //OPERATORTests();
+
+    //KICKTests();
+
+    //PRIVMSGTests();
+
+    //QUITTests();
+
     return 0;
 }
