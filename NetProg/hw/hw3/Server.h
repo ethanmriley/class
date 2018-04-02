@@ -2,6 +2,7 @@
 #include <string>
 #include "User.h"
 #include "Channel.h"
+#pragma once
 
 class Server {
 public:

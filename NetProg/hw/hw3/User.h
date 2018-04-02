@@ -1,7 +1,5 @@
+#pragma once
 #include <string>
-
-#ifndef _USER_
-#define _USER_
 
 class User{
 public:
@@ -26,5 +24,3 @@ private:
     bool isOperator;
     int sockfd;
 };
-
-#endif
