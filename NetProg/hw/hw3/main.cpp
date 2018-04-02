@@ -23,8 +23,6 @@ int new_connection(int servfd, Server& serv) {
         return 1;
         }
 
-    cout << "accept passed";
-
     err = send(client_sock, msg, sizeof(msg), 0);
     if(err == -1) {
         perror("send failed");
@@ -60,7 +58,6 @@ int main (int argc, const char * argv[]) {
         result = select(nfds, &readfds, (fd_set*)NULL, (fd_set*)NULL, &tv);
         if (result > 0) {
             if (FD_ISSET(serv_sock.sockfd, &readfds))
-                cout << "calling new_connection";
                 new_connection(serv_sock.sockfd, serv);
             }
         else 
