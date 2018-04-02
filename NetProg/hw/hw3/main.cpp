@@ -94,6 +94,16 @@ bool validUsername(string username) {
     return (std::regex_match(username, std::regex("[a-zA-Z][_0-9a-zA-Z]*")) && username.length() <= 20);
 }
 
+string USER(string username, Server &serv) {
+    if(validUsername(username)) {
+        serv.addUser(User(username));
+        return "Welcome, " + username + "\n";
+    } else {
+        return "Invalid username.\n";
+    }
+}
+
+
 string LIST(string channelName, Server &serv) {
     if(serv.channelExists(channelName)) {
         return serv.getChannel(channelName)->listUsers();
