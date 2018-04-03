@@ -27,7 +27,7 @@ bool validPassword(string password) {
     return (regex_match(password, regex("[a-zA-Z][_0-9a-zA-Z]*")) && password.length() <= 20);
 }
 
-string parse(string currentUser, char* request, Server &serv, bool &first_command) {
+string parse(string &currentUser, char* request, Server &serv, bool first_command) {
     char* token;
     std::vector<string> tokens;
 
@@ -46,14 +46,13 @@ string parse(string currentUser, char* request, Server &serv, bool &first_comman
     if(first_command && tokens[0].compare("USER") != 0)
         return "Invalid command, please identify yourself with USER.\n";
 
-    first_command = false;
-        
     if(tokens[0].compare("USER") == 0) { 
         if(tokens.size() != 2)
             return "Invalid USER command.\n";
         else if(not validUsername(tokens[1]) )
             return "Invalid username.\n";
 
+        currentUser = tokens[1];
         return USER(tokens[1], serv);
 
     } else if(tokens[0].compare("LIST") == 0) {
@@ -141,10 +140,13 @@ int new_connection(int servfd, Server& serv) {
 
         response = parse(currentUser, request, serv, first_command);
         Send(client_sock, response.c_str(), response.length(), 0);
-        if(response.compare("Invalid command, please identify yourself with USER.\n") == 0) {
-            close(client_sock);
-            break;
-            //kill thread
+        if(first_command) {
+            if(response.compare("Invalid command, please identify yourself with USER.\n") == 0) {
+                close(client_sock);
+                //kill thread
+                break;
+            } else
+                first_command = false;
         }
     }
 
