@@ -58,7 +58,7 @@ std::string OPERATOR(std::string currentUser, std::string password, Server &serv
     }
 }
 
-std::string KICK(std::string currentUser, std::string kickedUser, std::string channelName, Server &serv) {
+std::string KICK(std::string currentUser, std::string channelName, std::string kickedUser, Server &serv) {
     if(serv.getUser(currentUser)->userIsOperator()) {
         if(serv.getChannel(channelName)->containsUser(kickedUser)) {
             serv.getChannel(channelName)->kickUser(kickedUser);
