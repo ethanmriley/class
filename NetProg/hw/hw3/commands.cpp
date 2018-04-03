@@ -28,7 +28,11 @@ std::string LIST(std::string channelName, Server &serv) {
 
 std::string JOIN(std::string currentUser, std::string channelName, Server &serv) {
     if(serv.containsChannel(channelName)) {
-        serv.getChannel(channelName)->addUser(User(currentUser));
+        if(serv.getChannel(channelName)->containsUser(currentUser)) {
+            return "You're already in that channel.\n";
+        } else {
+            serv.getChannel(channelName)->addUser(User(currentUser));
+        }
     } else {
         //we have to make the channel
         //validate channelName, create the channel, add our user to channel, add channel to serv

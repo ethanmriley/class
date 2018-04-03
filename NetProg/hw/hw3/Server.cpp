@@ -60,7 +60,10 @@ User* Server::getUser(std::string username) {
 
 std::string Server::listChannels() {
     std::string result = "";
-    result += "There are currently " + serverChannels.size() + " channels.\n";
+    
+    result += "There are currently ";
+    result += serverChannels.size();
+    result += " channels.\n";
 
     std::map<std::string, Channel>::iterator itr;
     for(itr = serverChannels.begin(); itr != serverChannels.end(); itr++) {

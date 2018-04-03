@@ -42,16 +42,18 @@ std::string Channel::listUsers() {
     std::map<std::string, User>::iterator itr;
     std::string result;
     
-    result += "There are currently " + channelUsers.size() + " members.\n";
+    result += "There are currently ";
+    result += channelUsers.size();
+    result += " members.\n";
     result += channelName + " members: ";
 
     for(itr = channelUsers.begin(); itr != channelUsers.end(); itr++) {
-        list += (itr->second).getUsername() + " ";
+        result += (itr->second).getUsername() + " ";
     }
 
-    list += '\n';
+    result += '\n';
 
-    return list;
+    return result;
 }
 
 int Channel::kickUser(std::string username) {

@@ -11,7 +11,7 @@
 using std::cout;
 using std::string;
 
-std::string parse(char* request, Server &serv) {
+string parse(string currentUser, char* request, Server &serv) {
     char *token;
     std::vector<char *> tokens;
 
@@ -22,41 +22,49 @@ std::string parse(char* request, Server &serv) {
     }
 
     if(tokens[0] == "USER") { 
-        if(tokens.size() != 2) {
+        if(tokens.size() != 2)
             return "Invalid USER command.\n";
-        }
+
+        return USER(tokens[1], serv);
+
     } else if(tokens[0] == "LIST") {
-        if(tokens.size() > 2) {
+        if(tokens.size() > 2)
             return "Invalid LIST command.\n";
-        } else if(tokens.size() == 1) {
-        } else if(tokens.size() == 2) {
-        }
+        else if(tokens.size() == 1)
+            return LIST("", serv);
+        else if(tokens.size() == 2)
+            return LIST(tokens[1], serv);
+
     } else if(tokens[0] == "JOIN") {
-        if(tokens.size() != 2) {
+        if(tokens.size() != 2) 
             return "Invalid JOIN command.\n";
-        }
+        
+        return JOIN(currentUser, tokens[1], serv);
+
     } else if(tokens[0] == "PART") { 
-        if(tokens.size() > 2) {
+        if(tokens.size() > 2)
             return "Invalid PART command.\n";
-        } else if(tokens.size() == 1) {
-        } else if(tokens.size() == 2) {
-        }
+        else if(tokens.size() == 1)
+            return "";
+        else if(tokens.size() == 2)
+            return "";
+
     } else if(tokens[0] == "OPERATOR") {
-        if(tokens.size() != 2) {
+        if(tokens.size() != 2)
             return "Invalid OPERATOR command.\n";
-        }
-    } if(tokens[0] == "KICK") {
-        if(tokens.size() != 3) {
+ 
+    } else if(tokens[0] == "KICK") {
+        if(tokens.size() != 3)
             return "Invalid KICK command.\n";
-        }
+        
     } else if(tokens[0] == "PRIVMSG") {
-        if(tokens.size() != 3) {
+        if(tokens.size() != 3)
             return "Invalid PRIVMSG command.\n";
-        }
+        
     } else if(tokens[0] == "QUIT") {
-        if(tokens.size() != 1) {
+        if(tokens.size() != 1)
             return "Invalid QUIT command.\n";
-        }
+        
     } else return "Invalid command.\n";
 }
 
@@ -68,16 +76,16 @@ int new_connection(int servfd, Server& serv) {
     int client_sock;
     char request[1024] = {0};
     string response;
+    string currentUser = "placeholder";
 
     client_sock = Accept(servfd, (struct sockaddr*) &client, &cliaddr_len);
 
     while(1) {
         bytes_recv = Recv(client_sock, request, sizeof(request), 0);
-        if(bytes_recv == 0) {
+        if(bytes_recv == 0)
             break;
-        }
 
-        response = parse(request, serv);
+        response = parse(currentUser, request, serv);
         Send(client_sock, response.c_str(), response.length(), 0);
     }
 
