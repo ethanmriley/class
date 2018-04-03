@@ -6,20 +6,58 @@
 #include "network.h"
 #include <signal.h>
 #include <iostream>
+#include <vector>
 
 using std::cout;
 using std::string;
 
 std::string parse(char* request, Server &serv) {
     char *token;
+    std::vector<char *> tokens;
 
     token = strtok(request, " ");
     while(token) {
-        cout << token << '\n';
+        tokens.push_back(token);
         token = strtok(NULL, " ");
     }
 
-    return "";
+    if(tokens[0] == "USER") { 
+        if(tokens.size() != 2) {
+            return "Invalid USER command.\n";
+        }
+    } else if(tokens[0] == "LIST") {
+        if(tokens.size() > 2) {
+            return "Invalid LIST command.\n";
+        } else if(tokens.size() == 1) {
+        } else if(tokens.size() == 2) {
+        }
+    } else if(tokens[0] == "JOIN") {
+        if(tokens.size() != 2) {
+            return "Invalid JOIN command.\n";
+        }
+    } else if(tokens[0] == "PART") { 
+        if(tokens.size() > 2) {
+            return "Invalid PART command.\n";
+        } else if(tokens.size() == 1) {
+        } else if(tokens.size() == 2) {
+        }
+    } else if(tokens[0] == "OPERATOR") {
+        if(tokens.size() != 2) {
+            return "Invalid OPERATOR command.\n";
+        }
+    } if(tokens[0] == "KICK") {
+        if(tokens.size() != 3) {
+            return "Invalid KICK command.\n";
+        }
+    } else if(tokens[0] == "PRIVMSG") {
+        if(tokens.size() != 3) {
+            return "Invalid PRIVMSG command.\n";
+        }
+    } else if(tokens[0] == "QUIT") {
+        if(tokens.size() != 1) {
+            return "Invalid QUIT command.\n";
+        }
+    } else return "Invalid command.\n";
 }
 
 int new_connection(int servfd, Server& serv) {

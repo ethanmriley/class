@@ -40,7 +40,10 @@ bool Channel::containsUser(std::string username) {
 
 std::string Channel::listUsers() {
     std::map<std::string, User>::iterator itr;
-    std::string list = channelName + " members: ";
+    std::string result;
+    
+    result += "There are currently " + channelUsers.size() + " members.\n";
+    result += channelName + " members: ";
 
     for(itr = channelUsers.begin(); itr != channelUsers.end(); itr++) {
         list += (itr->second).getUsername() + " ";
