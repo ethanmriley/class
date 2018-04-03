@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <regex>
+#include <unistd.h>
 
 using std::cout;
 using std::string;
@@ -26,7 +27,7 @@ bool validPassword(string password) {
     return (regex_match(password, regex("[a-zA-Z][_0-9a-zA-Z]*")) && password.length() <= 20);
 }
 
-string parse(string currentUser, char* request, Server &serv) {
+string parse(string currentUser, char* request, Server &serv, bool &first_command) {
     char* token;
     std::vector<string> tokens;
 
@@ -41,7 +42,12 @@ string parse(string currentUser, char* request, Server &serv) {
         tokens.push_back(string(token));
         token = strtok(NULL, " ");
     }
+    
+    if(first_command && tokens[0].compare("USER") != 0)
+        return "Invalid command, please identify yourself with USER.\n";
 
+    first_command = false;
+        
     if(tokens[0].compare("USER") == 0) { 
         if(tokens.size() != 2)
             return "Invalid USER command.\n";
@@ -121,6 +127,7 @@ int new_connection(int servfd, Server& serv) {
     int err;
     int bytes_recv;
     int client_sock;
+    bool first_command = true;
     char request[1024] = {0};
     string response;
     string currentUser = "placeholder";
@@ -132,8 +139,13 @@ int new_connection(int servfd, Server& serv) {
         if(bytes_recv == 0)
             break;
 
-        response = parse(currentUser, request, serv);
+        response = parse(currentUser, request, serv, first_command);
         Send(client_sock, response.c_str(), response.length(), 0);
+        if(response.compare("Invalid command, please identify yourself with USER.\n") == 0) {
+            close(client_sock);
+            break;
+            //kill thread
+        }
     }
 
     return 0;
