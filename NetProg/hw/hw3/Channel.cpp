@@ -43,7 +43,7 @@ std::string Channel::listUsers() {
     std::string result;
     
     result += "There are currently ";
-    result += channelUsers.size();
+    result += std::to_string(channelUsers.size());
     result += " members.\n";
     result += channelName + " members: ";
 

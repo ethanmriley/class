@@ -62,7 +62,7 @@ std::string Server::listChannels() {
     std::string result = "";
     
     result += "There are currently ";
-    result += serverChannels.size();
+    result += std::to_string(serverChannels.size());
     result += " channels.\n";
 
     std::map<std::string, Channel>::iterator itr;

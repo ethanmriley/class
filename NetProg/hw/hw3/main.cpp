@@ -27,16 +27,22 @@ bool validPassword(string password) {
 }
 
 string parse(string currentUser, char* request, Server &serv) {
-    char *token;
-    std::vector<char *> tokens;
+    char* token;
+    std::vector<string> tokens;
 
     token = strtok(request, " ");
     while(token) {
-        tokens.push_back(token);
+        
+        for(int i = 0; i < sizeof(token); i++) {
+            if(token[i] == '\n')
+                token[i] = '\0';
+        }
+
+        tokens.push_back(string(token));
         token = strtok(NULL, " ");
     }
 
-    if(tokens[0] == "USER") { 
+    if(tokens[0].compare("USER") == 0) { 
         if(tokens.size() != 2)
             return "Invalid USER command.\n";
         else if(not validUsername(tokens[1]) )
@@ -44,7 +50,7 @@ string parse(string currentUser, char* request, Server &serv) {
 
         return USER(tokens[1], serv);
 
-    } else if(tokens[0] == "LIST") {
+    } else if(tokens[0].compare("LIST") == 0) {
         if(tokens.size() > 2)
             return "Invalid LIST command.\n";
         else if(tokens.size() == 1)
@@ -55,7 +61,7 @@ string parse(string currentUser, char* request, Server &serv) {
 
         return LIST(tokens[1], serv);
 
-    } else if(tokens[0] == "JOIN") {
+    } else if(tokens[0].compare("JOIN") == 0) {
         if(tokens.size() != 2) 
             return "Invalid JOIN command.\n";
         else if(not validChannelName(tokens[1]))
@@ -63,7 +69,7 @@ string parse(string currentUser, char* request, Server &serv) {
         
         return JOIN(currentUser, tokens[1], serv);
 
-    } else if(tokens[0] == "PART") { 
+    } else if(tokens[0].compare("PART") == 0){ 
         if(tokens.size() > 2)
             return "Invalid PART command.\n";
         else if(tokens.size() == 1)
@@ -74,7 +80,7 @@ string parse(string currentUser, char* request, Server &serv) {
 
         return PART(currentUser, tokens[1], serv);
 
-    } else if(tokens[0] == "OPERATOR") {
+    } else if(tokens[0].compare("OPERATOR") == 0) {
         if(tokens.size() != 2)
             return "Invalid OPERATOR command.\n";
         else if(not validPassword(tokens[1]))
@@ -82,7 +88,7 @@ string parse(string currentUser, char* request, Server &serv) {
 
         return OPERATOR(currentUser, tokens[1], serv);
  
-    } else if(tokens[0] == "KICK") {
+    } else if(tokens[0].compare("KICK") == 0) {
         if(tokens.size() != 3)
             return "Invalid KICK command.\n";
         else if(not validChannelName(tokens[1]))
@@ -92,7 +98,7 @@ string parse(string currentUser, char* request, Server &serv) {
 
         return KICK(currentUser, tokens[1], tokens[2], serv);
         
-    } else if(tokens[0] == "PRIVMSG") {
+    } else if(tokens[0].compare("PRIVMSG") == 0) {
         if(tokens.size() != 3)
             return "Invalid PRIVMSG command.\n";
         else if(not (validUsername(tokens[1]) || validChannelName(tokens[1])))
@@ -100,7 +106,7 @@ string parse(string currentUser, char* request, Server &serv) {
 
         return PRIVMSG(currentUser, tokens[1], tokens[2], serv); //TODO parse messages as one thing rn the spaces will mess it up
         
-    } else if(tokens[0] == "QUIT") {
+    } else if(tokens[0].compare("QUIT") == 0) {
         if(tokens.size() != 1)
             return "Invalid QUIT command.\n";
 
