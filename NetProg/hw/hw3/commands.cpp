@@ -1,48 +1,29 @@
 #include "commands.h"
 
-bool validChannelName(std::string channelName) {
-    return (std::regex_match(channelName, std::regex("#[a-zA-Z][_0-9a-zA-Z]*")) && channelName.length() <= 20);
-}
-
-bool validUsername(std::string username) {
-    return (std::regex_match(username, std::regex("[a-zA-Z][_0-9a-zA-Z]*")) && username.length() <= 20);
-}
-
 std::string USER(std::string username, Server &serv) {
-    if(validUsername(username)) {
-        serv.addUser(User(username));
-        return "Welcome, " + username + "\n";
-    } else {
-        return "Invalid username.\n";
-    }
+    serv.addUser(User(username));
+    return "Welcome, " + username + "\n";
 }
 
 std::string LIST(std::string channelName, Server &serv) {
-    if(serv.containsChannel(channelName)) {
+    if(serv.containsChannel(channelName))
         return serv.getChannel(channelName)->listUsers();
-    }
-    else {
+    else
         return serv.listChannels();
-    }
 }
 
 std::string JOIN(std::string currentUser, std::string channelName, Server &serv) {
     if(serv.containsChannel(channelName)) {
-        if(serv.getChannel(channelName)->containsUser(currentUser)) {
+        if(serv.getChannel(channelName)->containsUser(currentUser))
             return "You're already in that channel.\n";
-        } else {
+        else
             serv.getChannel(channelName)->addUser(User(currentUser));
-        }
     } else {
         //we have to make the channel
-        //validate channelName, create the channel, add our user to channel, add channel to serv
-        if(validChannelName(channelName)) {
-            Channel newChannel = Channel(channelName);
-            newChannel.addUser(User(currentUser));
-            serv.addChannel(newChannel);
-        } else {
-            return "Invalid channel name.\n";
-        }
+        //create the channel, add our user to channel, add channel to serv
+        Channel newChannel = Channel(channelName);
+        newChannel.addUser(User(currentUser));
+        serv.addChannel(newChannel);
     }
     
     return ("Joined channel " + channelName + "\n");

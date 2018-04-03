@@ -7,9 +7,20 @@
 #include <signal.h>
 #include <iostream>
 #include <vector>
+#include <regex>
 
 using std::cout;
 using std::string;
+using std::regex_match;
+using std::regex;
+
+bool validChannelName(string channelName) {
+    return (regex_match(channelName, regex("#[a-zA-Z][_0-9a-zA-Z]*")) && channelName.length() <= 20);
+}
+
+bool validUsername(string username) {
+    return (regex_match(username, regex("[a-zA-Z][_0-9a-zA-Z]*")) && username.length() <= 20);
+}
 
 string parse(string currentUser, char* request, Server &serv) {
     char *token;
