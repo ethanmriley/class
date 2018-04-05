@@ -34,15 +34,15 @@ void channelTests() {
 
     assert(channel.containsUser("Maria") == false);
 
-    User Maria = User("Maria");
+    User Maria = User("Maria", 0);
 
     channel.addUser(Maria);
 
     assert(channel.containsUser("Maria") == true);
 
-    User pwnz0r = User("pwnz0r");
+    User pwnz0r = User("pwnz0r", 0);
     channel.addUser(pwnz0r);
-    User john = User("john");
+    User john = User("john", 0);
     channel.addUser(john);
 
     assert(channel.listUsers() == "#news members: Maria john pwnz0r \n");
@@ -71,7 +71,7 @@ void serverTests() {
 
     assert(serv.containsChannel("#news") == false);
 
-    serv.addUser(User("Maria"));
+    serv.addUser(User("Maria", 0));
 
     assert(serv.containsUser("Maria") == true);
 
@@ -86,19 +86,18 @@ void serverTests() {
     assert(serv.listChannels() == "* #announcements\n* #news\n* #trivia\n");
 }
 
-
 void USERTests() {
     Server serv;
 
-    assert(USER("Maria", serv) == "Welcome, Maria\n");
+    assert(USER("Maria", 0, serv) == "Welcome, Maria\n");
 
     assert(serv.containsUser("Maria") == true);
 
-    assert(USER("pwnZ0r", serv) == "Welcome, pwnZ0r\n");
+    assert(USER("pwnZ0r", 0, serv) == "Welcome, pwnZ0r\n");
 
     assert(serv.containsUser("pwnZ0r") == true);
 
-    assert(USER("ethan riley", serv) == "Invalid username.\n");
+    assert(USER("ethan riley", 0, serv) == "Invalid username.\n");
 
     assert(serv.containsUser("ethan riley") == false);
 }
@@ -110,9 +109,9 @@ void LISTTests() {
     serv.addChannel(Channel("#trivia"));
     serv.addChannel(Channel("#support"));
 
-    serv.getChannel("#news")->addUser(User("Maria"));
-    serv.getChannel("#news")->addUser(User("pwnZ0r"));
-    serv.getChannel("#news")->addUser(User("ethan"));
+    serv.getChannel("#news")->addUser(User("Maria", 0));
+    serv.getChannel("#news")->addUser(User("pwnZ0r", 0));
+    serv.getChannel("#news")->addUser(User("ethan", 0));
 
     assert(LIST("", serv) == "* #news\n* #support\n* #trivia\n"); //should document this
     assert(LIST("#news", serv) == "#news members: Maria ethan pwnZ0r \n");
@@ -122,15 +121,15 @@ void JOINTests() {
     Server serv;
 
     serv.addChannel(Channel("#news"));
-    serv.addUser(User("Maria"));
+    serv.addUser(User("Maria", 0));
 
-    assert(JOIN("Maria", "#news", serv) == "Joined channel #news\n");
+    assert(JOIN("Maria", 0, "#news", serv) == "Joined channel #news\n");
 
-    assert(JOIN("Maria", "#theory", serv) == "Joined channel #theory\n");
+    assert(JOIN("Maria", 0, "#theory", serv) == "Joined channel #theory\n");
     assert(serv.containsChannel("#theory") == true);
     assert(serv.getChannel("#theory")->containsUser("Maria") == true);
 
-    assert(JOIN("Maria", "new channel", serv) == "Invalid channel name.\n");
+    assert(JOIN("Maria", 0, "new channel", serv) == "Invalid channel name.\n");
     assert(serv.containsChannel("new channel") == false);
 }
 
@@ -141,8 +140,8 @@ void PARTTests() {
     serv.addChannel(Channel("#trivia"));
     serv.addChannel(Channel("#support"));
 
-    serv.getChannel("#news")->addUser(User("Maria"));
-    serv.getChannel("#trivia")->addUser(User("Maria"));
+    serv.getChannel("#news")->addUser(User("Maria", 0));
+    serv.getChannel("#trivia")->addUser(User("Maria", 0));
 
     assert(PART("Maria", "#news", serv) == "");
     assert(serv.getChannel("#news")->containsUser("Maria") == false);
@@ -150,7 +149,7 @@ void PARTTests() {
 
     assert(PART("Maria", "#support", serv) == "You are not currently in #support\n");
 
-    serv.getChannel("#news")->addUser(User("Maria"));
+    serv.getChannel("#news")->addUser(User("Maria", 0));
     assert(PART("Maria", "", serv) == "");
     assert(serv.getChannel("#news")->containsUser("Maria") == false);
     assert(serv.getChannel("#trivia")->containsUser("Maria") == false);
@@ -160,7 +159,7 @@ void OPERATORTests() {
     Server serv; 
 
     serv.setPassword("secret");
-    serv.addUser(User("Maria"));
+    serv.addUser(User("Maria", 0));
     assert(serv.getUser("Maria")->userIsOperator() == false);
 
     assert(OPERATOR("Maria", "secret", serv) == "OPERATOR status bestowed.\n");
@@ -169,7 +168,7 @@ void OPERATORTests() {
     assert(OPERATOR("Maria", "password", serv) == "Invalid OPERATOR command.\n");
     assert(serv.getUser("Maria")->userIsOperator() == true); //this is on purpose
 
-    serv.addUser(User("pwnZ0r"));
+    serv.addUser(User("pwnZ0r", 0));
     assert(OPERATOR("pwnZ0r", "password", serv) == "Invalid OPERATOR command.\n");
     assert(serv.getUser("pwnZ0r")->userIsOperator() == false);
 }
@@ -178,15 +177,15 @@ void KICKTests() {
     Server serv;
 
     serv.setPassword("secret");
-    serv.addUser(User("Maria"));
+    serv.addUser(User("Maria", 0));
     serv.getUser("Maria")->setOperator(true);
     
-    serv.addUser(User("pwnZ0r"));
+    serv.addUser(User("pwnZ0r", 0));
 
     serv.addChannel(Channel("#news"));
 
-    serv.getChannel("#news")->addUser(User("pwnZ0r"));
-    serv.getChannel("#news")->addUser(User("Maria"));
+    serv.getChannel("#news")->addUser(User("pwnZ0r", 0));
+    serv.getChannel("#news")->addUser(User("Maria", 0));
 
     assert(KICK("Maria", "pwnZ0r", "#news", serv) == "");
     assert(serv.getChannel("#news")->containsUser("pwnZ0r") == false);
@@ -199,8 +198,8 @@ void PRIVMSGTests() {
     Server serv;
 
     serv.addChannel(Channel("#news"));
-    serv.addUser(User("Maria"));
-    serv.addUser(User("pwnZ0r"));
+    serv.addUser(User("Maria", 0));
+    serv.addUser(User("pwnZ0r", 0));
 
     assert(PRIVMSG("Maria", "pwnZ0r", "hey\n", serv) == "");
 
@@ -217,8 +216,8 @@ void QUITTests() {
     serv.addChannel(Channel("#news"));
     serv.addChannel(Channel("#trivia"));
 
-    serv.getChannel("#news")->addUser(User("Maria"));
-    serv.getChannel("#trivia")->addUser(User("Maria"));
+    serv.getChannel("#news")->addUser(User("Maria", 0));
+    serv.getChannel("#trivia")->addUser(User("Maria", 0));
 
     assert(QUIT("Maria", serv) == "");
     assert(serv.getChannel("#news")->containsUser("Maria") == false);

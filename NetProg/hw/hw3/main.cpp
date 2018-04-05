@@ -29,7 +29,7 @@ bool validPassword(string password) {
     return (regex_match(password, regex("[a-zA-Z][_0-9a-zA-Z]*")) && password.length() <= 20);
 }
 
-string parse(string &currentUser, char* request, Server &serv, bool first_command) {
+string parse(string &currentUser, char* request, Server &serv, bool first_command, int client_sock) {
     char* token;
     std::vector<string> tokens;
 
@@ -55,7 +55,7 @@ string parse(string &currentUser, char* request, Server &serv, bool first_comman
             return "Invalid username.\n";
 
         currentUser = tokens[1];
-        return USER(tokens[1], serv);
+        return USER(tokens[1], client_sock, serv);
 
     } else if(tokens[0].compare("LIST") == 0) {
         if(tokens.size() > 2)
@@ -74,7 +74,7 @@ string parse(string &currentUser, char* request, Server &serv, bool first_comman
         else if(not validChannelName(tokens[1]))
             return "Invalid channel name.\n";
         
-        return JOIN(currentUser, tokens[1], serv);
+        return JOIN(currentUser, client_sock, tokens[1], serv);
 
     } else if(tokens[0].compare("PART") == 0){ 
         if(tokens.size() > 2)
@@ -140,12 +140,11 @@ int new_connection(int servfd, Server& serv) {
         if(bytes_recv == 0)
             break;
 
-        response = parse(currentUser, request, serv, first_command);
+        response = parse(currentUser, request, serv, first_command, client_sock);
         Send(client_sock, response.c_str(), response.length(), 0);
         if(first_command) {
             if(response.compare("Invalid command, please identify yourself with USER.\n") == 0) {
                 close(client_sock);
-                //kill thread
                 break;
             } else
                 first_command = false;

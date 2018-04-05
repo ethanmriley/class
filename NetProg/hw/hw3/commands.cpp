@@ -1,7 +1,7 @@
 #include "commands.h"
 
-std::string USER(std::string username, Server &serv) {
-    serv.addUser(User(username));
+std::string USER(std::string username, int client_sock, Server &serv) {
+    serv.addUser(User(username, client_sock));
     return "Welcome, " + username + "\n";
 }
 
@@ -12,17 +12,17 @@ std::string LIST(std::string channelName, Server &serv) {
         return serv.listChannels();
 }
 
-std::string JOIN(std::string currentUser, std::string channelName, Server &serv) {
+std::string JOIN(std::string currentUser, int client_sock, std::string channelName, Server &serv) {
     if(serv.containsChannel(channelName)) {
         if(serv.getChannel(channelName)->containsUser(currentUser))
             return "You're already in that channel.\n";
         else
-            serv.getChannel(channelName)->addUser(User(currentUser));
+            serv.getChannel(channelName)->addUser(User(currentUser, client_sock));
     } else {
         //we have to make the channel
         //create the channel, add our user to channel, add channel to serv
         Channel newChannel = Channel(channelName);
-        newChannel.addUser(User(currentUser));
+        newChannel.addUser(User(currentUser, client_sock));
         serv.addChannel(newChannel);
     }
     
