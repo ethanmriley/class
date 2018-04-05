@@ -2,6 +2,8 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
+std::mutex mtx;
+
 User::User() {
     isOperator = false;
 }
@@ -26,15 +28,21 @@ std::string User::getUsername() {
 }
 
 void User::setUsername(std::string user) {
+    mtx.lock();
     username = user;
+    mtx.unlock();
 }
 
 void User::setSockfd(int socket) {
+    mtx.lock();
     sockfd = socket;
+    mtx.unlock();
 }
 
 void User::setOperator(bool isOp) {
+    mtx.lock();
     isOperator = isOp;
+    mtx.unlock();
 }
 
 bool User::userIsOperator() {
