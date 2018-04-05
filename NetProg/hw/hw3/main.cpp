@@ -9,11 +9,13 @@
 #include <vector>
 #include <regex>
 #include <unistd.h>
+#include <thread>
 
 using std::cout;
 using std::string;
 using std::regex_match;
 using std::regex;
+using std::thread;
 
 bool validChannelName(string channelName) {
     return (regex_match(channelName, regex("#[a-zA-Z][_0-9a-zA-Z]*")) && channelName.length() <= 20);
@@ -180,7 +182,7 @@ int main (int argc, const char * argv[]) {
         result = select(nfds, &readfds, (fd_set*)NULL, (fd_set*)NULL, &tv);
         if (result > 0) {
             if (FD_ISSET(serv_sock.sockfd, &readfds))
-                new_connection(serv_sock.sockfd, serv);
+                thread (new_connection, serv_sock.sockfd, std::ref(serv)).detach();
             }
         else 
             perror("select failed");
