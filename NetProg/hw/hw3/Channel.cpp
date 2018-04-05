@@ -1,7 +1,11 @@
 #include "Channel.h"
 
+std::mutex mtx;
+
 Channel::Channel(std::string name) {
+    mtx.lock();
     channelName = name;
+    mtx.unlock();
 }
 
 std::string Channel::getChannelName() {
@@ -9,7 +13,7 @@ std::string Channel::getChannelName() {
 }
 
 int Channel::broadcast(std::string message) {
-    std::map<std::string, User>::iterator itr;
+    std::map<std::string, User>::const_iterator itr;
     for(itr = channelUsers.begin(); itr != channelUsers.end(); itr++) {
         (itr->second).sendMessage(message);
     }
@@ -17,29 +21,34 @@ int Channel::broadcast(std::string message) {
 }
 
 int Channel::setChannelName(std::string name) {
-    //might implement checking for name validity here
+    mtx.lock();
     channelName = name;
+    mtx.unlock();
     return 0;
 }
 
 int Channel::addUser(User addedUser) {
-     channelUsers[addedUser.getUsername()] = addedUser;
-     return 0;
+    mtx.lock();
+    channelUsers[addedUser.getUsername()] = addedUser;
+    mtx.unlock();
+    return 0;
 }
 
 int Channel::removeUser(std::string username) {
+    mtx.lock();
     channelUsers.erase(username);
+    mtx.unlock();
     return 0;
 }
 
 bool Channel::containsUser(std::string username) {
-    std::map<std::string, User>::iterator itr;
+    std::map<std::string, User>::const_iterator itr;
     itr = channelUsers.find(username);
     return (itr != channelUsers.end());
 }
 
 std::string Channel::listUsers() {
-    std::map<std::string, User>::iterator itr;
+    std::map<std::string, User>::const_iterator itr;
     std::string result;
     
     result += "There are currently ";
@@ -57,7 +66,10 @@ std::string Channel::listUsers() {
 }
 
 int Channel::kickUser(std::string username) {
+    mtx.lock();
     channelUsers.erase(username);
+    mtx.unlock();
+    return 0;
 }
 
 //TODO add channel broadcast to all of these
