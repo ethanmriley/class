@@ -24,9 +24,31 @@ char* hexToBin(char* hex, char* result) {
 }
 
 int main() {
-    char* deadbeef_hex = "deadbeef";
-    char  deadbeef_bin[65];
-    hexToBin(deadbeef_hex, deadbeef_bin);
-    printf("%s\n", deadbeef_bin);
+    char A[17] = "0000000000000000\0";
+    char B[17] = "0000000000000000\0";
+    int subtract = -999;
+
+    char temp[16] = {0};
+    
+    printf("Enter A (hex):\n");
+    fgets(temp, sizeof(temp), stdin);
+    memcpy((A + (sizeof(A) - strlen(temp))), temp, strlen(temp));
+
+    memset(temp, 0, sizeof(temp));
+
+    printf("Enter B (hex):\n");
+    fgets(temp, sizeof(temp), stdin);
+    memcpy((B + (sizeof(B) - strlen(temp))), temp, strlen(temp)); 
+
+    memset(temp, 0, sizeof(temp));
+
+    printf("Add (0) or subtract (1):\n");
+    fgets(temp, sizeof(temp), stdin);
+
+    if(strcmp("1\n", temp) == 0)
+        subtract = 1;
+    else if(strcmp("0\n", temp) == 0)
+        subtract = 0;
+
     return 0;
 }
