@@ -28,6 +28,10 @@ void subtract(char* A_bin, char* B_bin, char* S_bin) {
     return;
 }
 
+void invert(char* B_bin) {
+    return;
+}
+
 int main() {
     char A[17] = "0000000000000000\0";
     char B[17] = "0000000000000000\0";
@@ -69,10 +73,10 @@ int main() {
     hexToBin(A, A_bin);
     hexToBin(B, B_bin);
 
-
     if(strcmp("0\n", temp) == 0)
         add(A_bin, B_bin, S_bin);
     else if(strcmp("1\n", temp) == 0)
+        invert(B_bin);
         subtract(A_bin, B_bin, S_bin);
 
     printf("\n");
