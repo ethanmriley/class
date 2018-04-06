@@ -21,7 +21,31 @@ char* hexToBin(char* hex, char* result) {
     return result;
 }
 
+int add_two_bits(int d0, int d1, int carry_in, int *carry_out) {
+    *carry_out = ((d0 ^ d1) & (carry_in)) || (d0 & d1);
+    return (d0 ^ d1) ^ carry_in;
+}
+
 void add(char* A_bin, char* B_bin, char* S_bin) {
+    char g[64] = {'\30'};
+    char p[64] = {'\30'};
+    char gg[16] = {'\30'};
+    char gp[16] = {'\30'};
+    char sg[4] = {'\30'};
+    char sp[4] = {'\30'};
+    int A;
+    int B;
+
+    for(unsigned int i = 0; i < 64; i++) {
+        A = A_bin[i] == '1';
+        B = B_bin[i] == '1';
+        
+        if(A && B)
+            g[i] = '1';
+        else if(A ^ B)
+            p[i] = '1';
+    }
+
     return;
 }
 
