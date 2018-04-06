@@ -4,18 +4,15 @@
 char* hexToBin(char* hex, char* result) {
     char* quads[16]= {"0000", "0001", "0010", "0011", "0100", "0101", "0110", "0111", "1000", "1001", "1010", "1011", "1100", "1101", "1110", "1111" };
 
-    for(unsigned int i = 0; i < 64; i++) {
+    for(unsigned int i = 0; i < 16; i++) {
         unsigned char c = hex[i];
         if (c >= '0' && c <= '9') {
-            printf("%s\n", quads[c - '0']);
             strcat(result, quads[c - '0']);
         }
         if (c >= 'A' && c <= 'F') {
-            printf("%s\n", quads[10 + c - 'A']);
             strcat(result, quads[10 + c - 'A']);
         }
         if (c >= 'a' && c <= 'f') {
-            printf("%s\n", quads[10 + c - 'a']);
             strcat(result, quads[10 + c - 'a']);
         }
     }
@@ -23,10 +20,24 @@ char* hexToBin(char* hex, char* result) {
     return result;
 }
 
+void add(char* A_bin, char* B_bin, char* S_bin) {
+    return;
+}
+
+void subtract(char* A_bin, char* B_bin, char* S_bin) {
+    return;
+}
+
 int main() {
     char A[17] = "0000000000000000\0";
     char B[17] = "0000000000000000\0";
-    int subtract = -999;
+    char S[17] = "0000000000000000\0";
+    long int A_long = 0;
+    long int B_long = 0;
+    long int S_long = 0;
+    char A_bin[65] = {0};
+    char B_bin[65] = {0};
+    char S_bin[65] = {0};
 
     char temp[16] = {0};
     
@@ -40,15 +51,35 @@ int main() {
     fgets(temp, sizeof(temp), stdin);
     memcpy((B + (sizeof(B) - strlen(temp))), temp, strlen(temp)); 
 
+    A[16] = '\0';
+    B[16] = '\0';
+
     memset(temp, 0, sizeof(temp));
 
     printf("Add (0) or subtract (1):\n");
     fgets(temp, sizeof(temp), stdin);
 
-    if(strcmp("1\n", temp) == 0)
-        subtract = 1;
-    else if(strcmp("0\n", temp) == 0)
-        subtract = 0;
+    A_long = strtol(A, 0, 16);
+    B_long = strtol(B, 0, 16);
+
+    printf("\n");
+    printf("A is %s or %ld\n", A, A_long);
+    printf("B is %s or %ld\n", B, B_long);
+
+    hexToBin(A, A_bin);
+    hexToBin(B, B_bin);
+
+
+    if(strcmp("0\n", temp) == 0)
+        add(A_bin, B_bin, S_bin);
+    else if(strcmp("1\n", temp) == 0)
+        subtract(A_bin, B_bin, S_bin);
+
+    printf("\n");
+    printf("Calculate sum, S:\n\n");
+    printf("A (bin) : %s\n", A_bin);
+    printf("B (bin) : %s\n", B_bin);
+    printf("S (bin) : %s\n", S_bin);
 
     return 0;
 }
