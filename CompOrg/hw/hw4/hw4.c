@@ -32,6 +32,12 @@ void subtract(char* A_bin, char* B_bin, char* S_bin) {
 void invert(char* B_bin, long int B_long) {
     printf("Inverting %ld\n", B_long);
 
+    for(unsigned int i = 0; i < strlen(B_bin); i++) {
+        if(B_bin[i] == '1')
+            B_bin[i] = '0';
+        else if (B_bin[i] == '0')
+            B_bin[i] = '1';
+    }
 
     printf("B (bin) : %s\n", B_bin);
     return;
@@ -65,23 +71,22 @@ int main() {
 
     memset(temp, 0, sizeof(temp));
 
-    printf("Add (0) or subtract (1):\n");
-    fgets(temp, sizeof(temp), stdin);
-
     memcpy(temp, "0x", 2);
     memcpy(temp+2, A, sizeof(A));
-    printf("%s\n", temp);
     A_long = strtoul(temp, 0, 16);
     memcpy(temp, "0x", 2);
     memcpy(temp+2, B, sizeof(B));
     B_long = strtoul(temp, 0, 16);
 
+    hexToBin(A, A_bin);
+    hexToBin(B, B_bin);
+
+    printf("Add (0) or subtract (1):\n");
+    fgets(temp, sizeof(temp), stdin);
+
     printf("\n");
     printf("A is %s or %lu\n", A, A_long);
     printf("B is %s or %lu\n", B, B_long);
-
-    hexToBin(A, A_bin);
-    hexToBin(B, B_bin);
 
     if(strcmp("0\n", temp) == 0)
         add(A_bin, B_bin, S_bin);
