@@ -32,7 +32,7 @@ int add_two_bits(int d0, int d1, int carry_in, int *carry_out) {
     return (d0 ^ d1) ^ carry_in;
 }
 
-void add(char* A_bin, char* B_bin, char* S_bin) {
+void add(char* A_bin, char* B_bin, char* S_bin, int subtract) {
     int g[64] = {0};
     int p[64] = {0};
     int gg[16] = {0};
@@ -77,7 +77,7 @@ void add(char* A_bin, char* B_bin, char* S_bin) {
     for(unsigned int l = 0; l < 4; l++) {
 
         if(l == 0)
-            carry_in = 0;
+            carry_in = subtract;
         else
             carry_in = sc[l-1];
 
@@ -100,7 +100,7 @@ void add(char* A_bin, char* B_bin, char* S_bin) {
 
     for(unsigned int o = 0; o < 64; o++) {
         if(o == 0)
-            carry_in = 0;
+            carry_in = subtract;
         else
             carry_in = c[o];
 
@@ -118,6 +118,7 @@ void add(char* A_bin, char* B_bin, char* S_bin) {
 }
 
 void subtract(char* A_bin, char* B_bin, char* S_bin) {
+    add(A_bin, B_bin, S_bin, 1);
     return;
 }
 
@@ -181,7 +182,7 @@ int main() {
     printf("B is %s or %lu\n", B, B_long);
 
     if(strcmp("0\n", temp) == 0)
-        add(A_bin, B_bin, S_bin);
+        add(A_bin, B_bin, S_bin, 0);
     else if(strcmp("1\n", temp) == 0)
         invert(B_bin, B_long);
         subtract(A_bin, B_bin, S_bin);
