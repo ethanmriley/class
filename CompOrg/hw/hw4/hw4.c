@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
-char* hexToBin(char* hex, char* result) {
+void hexToBin(char* hex, char* result) {
     char* quads[16]= {"0000", "0001", "0010", "0011", "0100", "0101", "0110", "0111", "1000", "1001", "1010", "1011", "1100", "1101", "1110", "1111" };
 
     for(unsigned int i = 0; i < 16; i++) {
@@ -18,7 +19,12 @@ char* hexToBin(char* hex, char* result) {
         }
     }
 
-    return result;
+    return;
+}
+
+void decToHex(int dec, char* result) {
+    sprintf(result, "%X", dec);
+    return;
 }
 
 int add_two_bits(int d0, int d1, int carry_in, int *carry_out) {
@@ -27,23 +33,85 @@ int add_two_bits(int d0, int d1, int carry_in, int *carry_out) {
 }
 
 void add(char* A_bin, char* B_bin, char* S_bin) {
-    char g[64] = {'\30'};
-    char p[64] = {'\30'};
-    char gg[16] = {'\30'};
-    char gp[16] = {'\30'};
-    char sg[4] = {'\30'};
-    char sp[4] = {'\30'};
+    int g[64] = {0};
+    int p[64] = {0};
+    int gg[16] = {0};
+    int gp[16] = {0};
+    int sg[4] = {0};
+    int sp[4] = {0};
+    int sc[4] = {0};
+    int gc[16] = {0};
+    int c[64] = {0};
+    int sum[64] = {0};
+    int A_int[64] = {0};
+    int B_int[64] = {0};
     int A;
     int B;
+    int carry_in;
 
     for(unsigned int i = 0; i < 64; i++) {
-        A = A_bin[i] == '1';
-        B = B_bin[i] == '1';
+        A = (A_bin[i] == '1');
+        B = (B_bin[i] == '1');
         
-        if(A && B)
-            g[i] = '1';
-        else if(A ^ B)
-            p[i] = '1';
+        A_int[i] = A;
+        B_int[i] = B;
+       
+        if(A && B) {
+            g[i] = 1;
+        }
+        else if(A ^ B) {
+            p[i] = 1;
+        }
+    }
+
+    for(unsigned int j = 0; j < 16; j++) {
+        gg[j] = (g[(j*4)+3]==1 || (g[(j*4)+2]==1 && p[(j*4)+3]==1) || (g[(j*4)+1]==1 && p[(j*4)+2]==1 && p[(j*4)+3]==1) || (g[(j*4)]==1 && p[(j*4)+3]==1 && p[(j*4)+2]==1 && p[(j*4)+1]==1));
+        gp[j] = (p[j*4]==1 && p[(j*4)+1]==1 && p[(j*4)+2]==1 && p[(j*4)+3]==1);
+    }
+
+    for(unsigned int k = 0; k < 4; k++) {
+        sg[k] = gg[k*4+3] || (gg[k*4+2] && gp[k*4+3]) || (gg[k*4+1] && gp[k*4+2] && gp[k*4+3]) || (gg[k*4] && gp[k*4+3] && gp[k*4+2] && gp[k*4+1]);
+        sp[k] = gp[k*4] && gp[k*4+1] && gp[k*4+2] && gp[k*4+3];
+    }
+
+    for(unsigned int l = 0; l < 4; l++) {
+
+        if(l == 0)
+            carry_in = 0;
+        else
+            carry_in = sc[l-1];
+
+        sc[l] = sg[l] || (sp[l] && carry_in);
+    }
+
+    for(unsigned int m = 0; m < 16; m++) {
+        if(m % 4 == 0)
+            carry_in = sc[m/4];
+
+        gc[m] = gg[m] || (gp[m] && carry_in);
+    }
+
+    for(unsigned int n = 0; n < 64; n++) {
+        if(n % 16 == 0)
+            carry_in = sc[n/16];
+
+        c[n] = g[n] || (p[n] && carry_in);
+    }
+
+    for(unsigned int o = 0; o < 64; o++) {
+        if(o == 0)
+            carry_in = 0;
+        else
+            carry_in = c[o];
+
+        sum[o] = A_int[o] ^ B_int[o] ^ carry_in;
+    }
+
+    for(unsigned int p = 0; p < 64; p++) {
+        if(sum[p]==1)
+            S_bin[p] = '1';
+        else
+            S_bin[p] = '0';
     }
 
     return;
@@ -123,6 +191,20 @@ int main() {
     printf("A (bin) : %s\n", A_bin);
     printf("B (bin) : %s\n", B_bin);
     printf("S (bin) : %s\n", S_bin);
+    printf("\n");
+
+    S_long = strtoul(S_bin, 0, 2);
+
+    memset(temp, 0, sizeof(temp));
+    decToHex(S_long, temp);
+
+    for(unsigned int i = 0; i < strlen(temp); i++) {
+        temp[i] = tolower(temp[i]);
+    }
+
+    memcpy((S + (sizeof(S) - strlen(temp))), temp, strlen(temp));
+
+    printf("S is %s or %lu\n", S, S_long);
 
     return 0;
 }
