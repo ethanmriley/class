@@ -1,6 +1,7 @@
 #include "User.h"
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 std::mutex mtx_user;
 
@@ -15,11 +16,13 @@ User::User(std::string user, int client_sock) {
 }
 
 int User::disconnect() {
+    close(sockfd);
     return 0;
 }
 
 int User::sendMessage(std::string message) const{
     int result;
+    message += '\n';
     result = send(sockfd, message.c_str(), message.length(), 0);
     return 0;
 }

@@ -70,6 +70,8 @@ std::string KICK(std::string currentUser, std::string channelName, std::string k
 }
 
 std::string PRIVMSG(std::string currentUser, std::string recipient, std::string message, Server &serv) {
+    message = currentUser + "> " + message;
+
     if(message.length() > 512) {
         return "Message too long.\n";
     }

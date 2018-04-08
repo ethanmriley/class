@@ -35,6 +35,8 @@ int Server::addUser(User newUser) {
 }
 
 int Server::removeUser(std::string username) {
+    removeFromAllChannels(username);
+    serverUsers[username].disconnect();
     serverUsers.erase(username);
     return 0;
 }
