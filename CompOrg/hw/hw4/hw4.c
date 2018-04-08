@@ -77,7 +77,7 @@ void add(char* A_bin, char* B_bin, char* S_bin, int subtract) {
     for(unsigned int l = 0; l < 4; l++) {
 
         if(l == 0)
-            carry_in = subtract;
+            carry_in = 1;
         else
             carry_in = sc[l-1];
 
@@ -85,22 +85,26 @@ void add(char* A_bin, char* B_bin, char* S_bin, int subtract) {
     }
 
     for(unsigned int m = 0; m < 16; m++) {
-        if(m % 4 == 0)
-            carry_in = sc[m/4];
+        if(m == 0)
+            carry_in = 1;
+        else
+            carry_in = gc[m-1];
 
         gc[m] = gg[m] || (gp[m] && carry_in);
     }
 
     for(unsigned int n = 0; n < 64; n++) {
-        if(n % 16 == 0)
-            carry_in = sc[n/16];
+        if(n == 0)
+            carry_in = 1;
+        else
+            carry_in = c[n-1];
 
         c[n] = g[n] || (p[n] && carry_in);
     }
 
     for(unsigned int o = 0; o < 64; o++) {
         if(o == 0)
-            carry_in = subtract;
+            carry_in = 1;
         else
             carry_in = c[o];
 

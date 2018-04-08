@@ -35,6 +35,7 @@ int Channel::addUser(User addedUser) {
 }
 
 int Channel::removeUser(std::string username) {
+    broadcast(channelName + "> " + username + " left the channel.\n");
     mtx_channel.lock();
     channelUsers.erase(username);
     mtx_channel.unlock();
