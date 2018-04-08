@@ -106,12 +106,18 @@ string parse(string &currentUser, char* request, Server &serv, bool first_comman
         return KICK(currentUser, tokens[1], tokens[2], serv);
         
     } else if(tokens[0].compare("PRIVMSG") == 0) {
-        if(tokens.size() != 3)
+        if(tokens.size() < 3)
             return "Invalid PRIVMSG command.\n";
-        else if(not (validUsername(tokens[1]) || validChannelName(tokens[1])))
+        if(not (validUsername(tokens[1]) || validChannelName(tokens[1])))
             return "Invalid recipient.\n";
+        
+        string message;
+        for(unsigned int i = 2; i < tokens.size(); i++) {
+            message += tokens[i];
+            message += " ";
+        }
 
-        return PRIVMSG(currentUser, tokens[1], tokens[2], serv); //TODO parse messages as one thing rn the spaces will mess it up
+        return PRIVMSG(currentUser, tokens[1], message, serv); //TODO parse messages as one thing rn the spaces will mess it up
         
     } else if(tokens[0].compare("QUIT") == 0) {
         if(tokens.size() != 1)
