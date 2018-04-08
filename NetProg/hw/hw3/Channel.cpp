@@ -67,6 +67,7 @@ std::string Channel::listUsers() const{
 }
 
 int Channel::kickUser(std::string username) {
+    broadcast(channelName + "> " + username + " has been kicked from the channel.\n");
     mtx_channel.lock();
     channelUsers.erase(username);
     mtx_channel.unlock();
