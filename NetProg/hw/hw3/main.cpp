@@ -2,7 +2,6 @@
 #include "Channel.h"
 #include "Server.h"
 #include "commands.h"
-#include "test.h"
 #include "network.h"
 #include <signal.h>
 #include <iostream>
