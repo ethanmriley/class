@@ -166,6 +166,26 @@ int main (int argc, const char * argv[]) {
     struct timeval tv;
     struct server_socket serv_sock;
     fd_set readfds;
+    string password;
+    char* flag;
+    char token[20];
+
+    if(argc == 2) {
+        memcpy(token, argv[1], sizeof(token));
+        flag = strtok(token, "=");
+
+        if(strcmp("--opt-pass", flag) == 0) {
+
+            password = string(strtok(NULL, "="));
+
+            if(not(validPassword(password))) {
+                printf("Invalid password.\n");
+                exit(1);
+            }
+
+            serv.setPassword(password);
+        }
+     }
 
     //prevent process from stopping when a send() fails
     signal(SIGPIPE, SIG_IGN);
