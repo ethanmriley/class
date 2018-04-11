@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <assert.h>
+#include <math.h>
 
 /*
  Given the index values, determine the number of slots in your cache.
@@ -9,8 +10,8 @@ uint32_t slot_count(uint32_t idx_start, uint32_t idx_end)
 {
     // assert() calls are great to ensure your logic is valid!
     assert(idx_start < idx_end);
-    
-    return 0;
+
+    return pow(2, (idx_end-idx_start+1));
 }
 
 /*
