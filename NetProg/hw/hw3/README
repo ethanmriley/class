@@ -1,0 +1,4 @@
+mock IRC server in C for netprog 
+ethan riley, 2018
+
+when the user quits, i remove them from all channels and disconnect them silently
