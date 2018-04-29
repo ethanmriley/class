@@ -14,6 +14,11 @@ void sig_handler(int signo)
     }
 }
 
+int isPow10(int i) {
+    double result = log10(i);
+    return (floor(result) == result);
+}
+
 int main(int argc, char **argv)
 {
     int count, id;
@@ -24,13 +29,13 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &count);
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
 
-   //     printf("rank: %d i: %d start: %d end: %d sqrt_i: %d chunk_size: %d\n", id, i, start, end, sqrt_i, chunk_size);
-        
     signal(SIGUSR1, sig_handler);
 
-    //i need to wait until all processes are done until i move to the next candidate
+    if(id == 0) {
+        printf("\tN\tPrimes\n");
+    }
     
-    while (i < 100) {
+    while (1) {
         int sqrt_i = floor(sqrt(i));
         int range = (sqrt_i - 1);
         int chunk_size = ceil(range/ (float)count);
@@ -44,6 +49,8 @@ int main(int argc, char **argv)
         } else {
             end = start + chunk_size;
         }
+
+        if (end_now == 1) break;
 
         for(unsigned int j = start; j < end; j++) {
             if(i % j == 0) {
@@ -80,16 +87,20 @@ int main(int argc, char **argv)
 
         MPI_Barrier(MPI_COMM_WORLD);
 
+        if(id == 0 && isPow10(i)) {
+            printf("\t%d\t%d\n", i, prime_count);
+        }
+
         i++;
 
-        if (end_now == 1) break;
     }
     
     if(id == 0) {
-        printf("%d\n", prime_count);
+        printf("<Signal recieved>\n");
+        printf("\t%d\t%d\n", i, prime_count);
     }
-    MPI_Finalize();
 
+    MPI_Finalize();
     
     return 0;
 }
